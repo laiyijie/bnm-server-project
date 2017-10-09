@@ -1,0 +1,1 @@
+ALTER TABLE `order_farmer` ADD `day_money_out_rate` INT NOT NULL DEFAULT '5000' COMMENT '表示每天有多少的金额可以提现，为万分之x' AFTER `driver_insurance`;

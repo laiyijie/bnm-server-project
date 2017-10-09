@@ -1,0 +1,2466 @@
+# Example YAML to get you started quickly.
+# Be aware that YAML has indentation based scoping.
+# Code completion support is available so start typing for available options.
+swagger: '2.0'
+
+# This is your document metadata
+info:
+  version: "0.0.5"
+  title: 主程序
+  description: |
+    ## 错误规则
+    #### 1. 抛错 httpstatus 为 417 会返回 BusinessException的error，包含errorCode 和 errorMessage
+    #### 2. 抛错 httpstatus 为 401 是用户未登陆
+host: admin.xiaoxigua.me
+basePath: /admin/api/v1
+produces:
+  - application/json
+schemes:
+  - http
+tags:
+  - name: Auth
+    description: 权限管理
+
+  - name: MachineManage
+    description: 机器类型，机器模型管理接口
+
+  - name: Orders
+    description: 订单相关接口
+
+  - name: Option
+    description: 选项管理接口
+
+  - name: User
+    description: 用户个人接口
+
+  - name: GrabSeason
+    description: 抢单相关接口
+  - name: Team
+    description: 组队管理
+x-types:
+  ClientType: &ClientType
+   - DRIVER_APP
+   - WECHAT
+  ChargeChannelType: &ChargeChannelType
+   - upacp
+   - wx_app
+   - wx_pub
+  RescRoleMethod: &RescRoleMethod
+   - ALL
+   - GET
+  AuthState: &AuthState
+   - WAITING_AUTH
+   - AUTHED
+   - DENIED
+  OrderMultiInfoType: &OrderMultiInfoType
+   - SIZE
+   - PHOTO
+paths:
+  /user/aliOssAuthCridential:
+    get:
+      tags:
+        - User
+      summary: 获取阿里oss的凭证
+      responses:
+        200:
+          description: ok
+          schema:
+            title: AliCredentials
+            type: object
+            properties:
+              securityToken:
+                type: string
+              accessKeySecret:
+                type: string
+              accessKeyId:
+                type: string
+              expiration:
+                type: string
+
+  /auths/login:
+    post:
+      tags:
+        - Auth
+      summary: |
+        登录
+      parameters:
+        -
+          name: username
+          in: formData
+          description: 用户名
+          required: true
+          type: string
+        - name: password
+          in: formData
+          description: 密码
+          required: true
+          type: string
+      responses:
+        200:
+          description: 成功返回
+  /auths/roles:
+    get:
+      tags:
+        - Auth
+      summary: 获取所有的角色
+      responses:
+        200:
+          description: 成功返回
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Role'
+    post:
+      tags:
+        - Auth
+      summary: add a role
+      parameters:
+        - name: role
+          in: body
+          schema:
+            $ref: '#/definitions/Role'
+          description: role id is not required
+          required: true
+      responses:
+        200:
+          description: 成功返回
+  /auths/roles/{roleId}:
+    get:
+      tags:
+       - Auth
+      summary: get role
+      parameters:
+        - name: roleId
+          in: path
+          type: integer
+          required: true
+      responses:
+        200:
+          description: ok
+          schema:
+            $ref: '#/definitions/Role'
+    put:
+      tags:
+        - Auth
+      summary: update role info
+      parameters:
+        - name: role
+          in: body
+          schema:
+            $ref: '#/definitions/Role'
+          description: role id is not required
+          required: true
+        - name: roleId
+          in: path
+          type: integer
+          required: true
+      responses:
+        200:
+          description: 成功返回
+
+    delete:
+      tags:
+        - Auth
+      summary: delete role info
+      parameters:
+        - name: roleId
+          in: path
+          type: integer
+          required: true
+      responses:
+        200:
+          description: ok
+
+  /auths/roles/{roleId}/accountMaps:
+    get:
+      tags:
+        - Auth
+      summary: 获取某个角色下的所有账户关联
+      parameters:
+        - name: roleId
+          in: path
+          description: roleID
+          required: true
+          type: integer
+      responses:
+        200:
+          description: 成功返回
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/RoleAccoutMap'
+    post:
+      tags:
+        - Auth
+      summary: 增加一个关联
+      parameters:
+        - name: roleId
+          in: path
+          description: roleID
+          required: true
+          type: integer
+        - name: username
+          in: formData
+          description: username
+          required: true
+          type: string
+      responses:
+        200:
+          description: 成功返回
+
+  /auths/roles/{roleId}/accountMaps/{username}:
+    get:
+      tags:
+        - Auth
+      summary: 获取某个角色下的所有账户关联
+      parameters:
+        - name: roleId
+          in: path
+          description: roleID
+          required: true
+          type: integer
+        - name: username
+          in: path
+          description: username
+          required: true
+          type: string
+      responses:
+        200:
+          description: 成功返回
+          schema:
+            $ref: '#/definitions/RoleAccoutMap'
+    delete:
+      tags:
+        - Auth
+      summary: 删除一个角色和账户的关联
+      parameters:
+        - name: roleId
+          in: path
+          description: roleID
+          required: true
+          type: integer
+        - name: username
+          in: path
+          description: username
+          required: true
+          type: string
+      responses:
+        200:
+          description: 成功返回
+
+
+  /auths/roles/{roleId}/resourceMaps:
+    get:
+      tags:
+        - Auth
+      summary: 资源和角色的对应关系
+      parameters:
+        - name: roleId
+          in: path
+          description: role ID
+          required: true
+          type: integer
+      responses:
+        200:
+          description: ok
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/RoleRescMap'
+    post:
+      tags:
+        - Auth
+      summary: 在角色下增加一个resource
+      parameters:
+        - name: roleId
+          in: path
+          description: role ID
+          required: true
+          type: integer
+        - name: RoleRescMap
+          description: map
+          required: true
+          in: body
+          schema:
+            $ref: '#/definitions/RoleRescMap'
+      responses:
+        200:
+          description: ok
+
+
+  /auths/roles/{roleId}/resourceMaps/{rescId}:
+    delete:
+      tags:
+        - Auth
+      summary: 在角色下删除一个resource
+      parameters:
+        - name: roleId
+          in: path
+          description: role ID
+          required: true
+          type: integer
+        - name: rescId
+          in: path
+          description: rescId
+          required: true
+          type: integer
+      responses:
+        200:
+          description: ok
+    put:
+      tags:
+        - Auth
+      summary: 修改
+      parameters:
+        - name: roleId
+          in: path
+          description: role ID
+          required: true
+          type: integer
+        - name: rescId
+          in: path
+          description: rescId
+          required: true
+          type: integer
+        - name: method
+          in: body
+          schema:
+            $ref: '#/definitions/RoleRescMap'
+          description: only method field required
+      responses:
+        200:
+          description: ok
+
+  /auths/accounts:
+    get:
+      tags:
+        - Auth
+      summary: 获取所有的账户信息
+      responses:
+        200:
+          description: 成功返回
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/ManagerAccount'
+    post:
+      tags:
+        - Auth
+      summary: 新增一个账户
+      parameters:
+        - name: account
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/ManagerAccount'
+      responses:
+        200:
+          description: 成功返回
+
+  /auths/accounts/{username}:
+    get:
+      tags:
+        - Auth
+      summary: 获取一个账户信息
+      parameters:
+        - name: username
+          in: path
+          required: true
+          type: string
+      responses:
+        200:
+          description: 成功返回
+          schema:
+            $ref: '#/definitions/ManagerAccount'
+    put:
+      tags:
+        - Auth
+      summary: 修改一个用户
+      parameters:
+        - name: username
+          in: path
+          required: true
+          type: string
+        - name: manageAccount
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/ManagerAccount'
+      responses:
+        200:
+          description: ok
+    delete:
+      tags:
+        - Auth
+      summary: 删除一个账户
+      parameters:
+        - name: username
+          in: path
+          required: true
+          type: string
+      responses:
+        200:
+          description: 成功返回
+
+  /auths/resources:
+    get:
+      tags:
+        - Auth
+      summary: 获取所有的资源
+      responses:
+        200:
+          description: 成功返回
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Resc'
+    post:
+      tags:
+        - Auth
+      summary: 新增一个资源
+      parameters:
+        - name: resource
+          description: 不需要 传id，id 给我也没用
+          required: true
+          in: body
+          schema:
+            $ref: '#/definitions/Resc'
+      responses:
+        200:
+          description: 成功返回
+
+  /auths/resources/{rescId}:
+    get:
+      tags:
+        - Auth
+      summary: get a resc
+      parameters:
+        - name: rescId
+          in: path
+          required: true
+          type: integer
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/Resc'
+    delete:
+      tags:
+        - Auth
+      summary: 删除一个资源
+      parameters:
+        - name: rescId
+          in: path
+          required: true
+          type: integer
+      responses:
+        200:
+          description: OK
+    put:
+      tags:
+        - Auth
+      summary: 修改一个资源
+      parameters:
+        - name: resource
+          description: here the id is invalid
+          required: true
+          in: body
+          schema:
+            $ref: '#/definitions/Resc'
+        - name: rescId
+          in: path
+          required: true
+          type: integer
+      responses:
+        200:
+          description: 成功返回
+
+
+  /orders:
+    get:
+      tags:
+        - Orders
+      summary: get all orders
+      responses:
+        200:
+          description: 成功返回
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/OrderBasic'
+
+  /orders/{orderId}:
+    get:
+      tags:
+        - Orders
+      summary: 获取单个订单的信息
+      parameters:
+        - name: orderId
+          in: path
+          type: string
+          required: true
+      responses:
+        200:
+          description: ok
+          schema:
+            $ref: '#/definitions/OrderDetail'
+    put:
+      tags:
+        - Orders
+      summary: 更改订单信息
+      parameters:
+        - name: orderId
+          in: path
+          type: string
+          required: true
+        - name: orderDetail
+          in: body
+          schema:
+            $ref: '#/definitions/OrderDetail'
+          required: true
+      responses:
+        200:
+          description: ok
+  /orders/{orderId}/accept:
+    put:
+      tags:
+        - Orders
+      summary: 认证一个订单
+      parameters:
+        - name: orderId
+          in: path
+          type: string
+          required: true
+      responses:
+        200:
+          description: ok
+  /orders/{orderId}/membergeo:
+    get:
+      tags:
+       - Team
+      summary: 获取所有队员的位置
+      parameters:
+        - name: orderId
+          in: path
+          description: 订单ID
+          required: true
+          type: string
+      responses:
+        200:
+          description: ok
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/UserBasic'
+  /orders/{orderId}/option/{optionId}:
+    post:
+      tags:
+        - Orders
+      summary: 添加订单要求
+      parameters:
+        - name: orderId
+          in: path
+          type: string
+          required: true
+        - name: optionId
+          in: path
+          type: integer
+          format: int64
+          required: true
+      responses:
+        200:
+          description: ok
+    delete:
+      tags:
+        - Orders
+      summary: 删除订单要求
+      parameters:
+      - name: orderId
+        in: path
+        type: string
+        required: true
+      - name: optionId
+        in: path
+        type: integer
+        format: int64
+        required: true
+      responses:
+        200:
+          description: ok
+  /orders/{orderId}/multiInfos:
+    get:
+      tags:
+        - Orders
+      summary: 获取订单的多维度信息列表
+      parameters:
+        - name: orderId
+          in: path
+          type: string
+          required: true
+      responses:
+        200:
+          description: ok
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/OrderMultiInfo'
+    post:
+      tags:
+        - Orders
+      summary: 增加一个多维度展示项
+      parameters:
+        - name: orderId
+          in: path
+          type: string
+          required: true
+        - name: multiInfo
+          required: true
+          in: body
+          description: 不需要传id
+          schema:
+            $ref: '#/definitions/OrderMultiInfo'
+      responses:
+        200:
+          description: ok
+  /orders/{orderId}/multiInfos/{id}:
+    delete:
+      summary: 删除一个多维度展示项
+      tags:
+        - Orders
+      parameters:
+        - name: orderId
+          in: path
+          type: string
+          required: true
+        - name: id
+          in: path
+          type: integer
+          format: int64
+          required: true
+      responses:
+        200:
+          description: ok
+  /orders/{orderId}/multiInfos/{id}/status/publish:
+    post:
+      summary: 发布一个多维度展示项
+      tags:
+        - Orders
+      parameters:
+        - name: orderId
+          in: path
+          type: string
+          required: true
+        - name: id
+          in: path
+          type: integer
+          format: int64
+          required: true
+      responses:
+        200:
+          description: ok
+  /orders/{orderId}/multiInfos/{id}/status/unpublish:
+    post:
+      summary: 撤销发布一个多维度展示项
+      tags:
+        - Orders
+      parameters:
+        - name: orderId
+          in: path
+          type: string
+          required: true
+        - name: id
+          in: path
+          type: integer
+          format: int64
+          required: true
+      responses:
+        200:
+          description: ok
+
+  /machine/machineModels:
+    get:
+      tags:
+        - MachineManage
+      summary: 获取所有的车辆模型
+      responses:
+        200:
+          description: ok
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/MachineModel'
+    post:
+      tags:
+        - MachineManage
+      summary: 增加一个车辆模型
+      parameters:
+        - name: machineModel
+          required: true
+          in: body
+          schema:
+            $ref: '#/definitions/MachineModel'
+      responses:
+        200:
+          description: ok
+  /machine/machineModels/{modelId}:
+    get:
+      tags:
+        - MachineManage
+      summary: 获取某车型的信息
+      parameters:
+        - name: modelId
+          required: true
+          in: path
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: ok
+          schema:
+            $ref: '#/definitions/MachineModel'
+    put:
+      tags:
+        - MachineManage
+      summary: modify the car's info
+      parameters:
+        - name: modelId
+          required: true
+          in: path
+          type: integer
+          format: int64
+        - name: machineType
+          description: here the id is invalid
+          required: true
+          in: body
+          schema:
+            $ref: '#/definitions/MachineModel'
+      responses:
+        200:
+          description: ok
+    delete:
+      tags:
+        - MachineManage
+      summary: 删除一个车辆模型
+      parameters:
+        - name: modelId
+          required: true
+          in: path
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: ok
+
+  /machine/machineTypes:
+    get:
+      tags:
+        - MachineManage
+      summary: 获取所有的车辆类型
+      responses:
+        200:
+          description: ok
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/MachineType'
+    post:
+      tags:
+        - MachineManage
+      summary: 增加车辆类型
+      parameters:
+        - name: machineType
+          description: here the id is invalid
+          required: true
+          in: body
+          schema:
+            $ref: '#/definitions/MachineType'
+      responses:
+        200:
+          description: ok
+  /machine/machineTypes/{machineTypeId}:
+    get:
+      tags:
+        - MachineManage
+      summary: 获得一个车辆模型
+      parameters:
+        - name: machineTypeId
+          description: 机器类型的ID
+          required: true
+          in: path
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: ok
+          schema:
+            $ref: '#/definitions/MachineType'
+    put:
+      tags:
+       - MachineManage
+      summary: 修改车辆类型
+      parameters:
+        - name: machineTypeId
+          description: 机器类型的ID
+          required: true
+          in: path
+          type: integer
+          format: int64
+        - name: machineModel
+          description: here the id is invalid
+          required: true
+          in: body
+          schema:
+            $ref: '#/definitions/MachineType'
+      responses:
+        200:
+          description: ok
+    delete:
+      tags:
+        - MachineManage
+      summary: 删除一个车辆模型
+      parameters:
+        - name: machineTypeId
+          description: 机器类型的ID
+          required: true
+          in: path
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: ok
+  /machine/machineModels/{machineModelId}/workingTypes:
+    get:
+      tags:
+        - MachineManage
+      summary: 获取车辆型号对应的可以作业的种类
+      parameters:
+        - name: machineModelId
+          in: path
+          required: true
+          description: 机器型号的id
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: ok
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/WorkingType"
+  /machine/machineModels/{machineModelId}/workingTypes/{workingTypeId}:
+    post:
+      tags:
+        - MachineManage
+      summary: 增加车辆型号对应的可以作业的种类
+      parameters:
+        - name: machineModelId
+          in: path
+          required: true
+          description: 机器型号的id
+          type: integer
+          format: int64
+        - name: workingTypeId
+          in: path
+          required: true
+          description: 选项类型的ID
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: ok
+    delete:
+      tags:
+        - MachineManage
+      summary: 删除车辆型号对应的可以作业的种类
+      parameters:
+        - name: machineModelId
+          in: path
+          required: true
+          description: 机器型号的id
+          type: integer
+          format: int64
+        - name: workingTypeId
+          in: path
+          required: true
+          description: 选项类型的ID
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: ok
+  /machine/machineModels/{machineModelId}/options:
+    get:
+      tags:
+        - MachineManage
+      summary: 获取机器型号对应的选项
+      parameters:
+        - name: machineModelId
+          in: path
+          required: true
+          description: 机器型号的id
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: ok
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Option"
+  /machine/machineModels/{machineModelId}/options/{optionId}:
+    post:
+      tags:
+        - MachineManage
+      summary: 增加机器的选项
+      parameters:
+        - name: machineModelId
+          in: path
+          required: true
+          description: 机器型号的id
+          type: integer
+          format: int64
+        - name: optionId
+          in: path
+          required: true
+          description: 选项类型的ID
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: ok
+    delete:
+      tags:
+        - MachineManage
+      summary: 删除机器的选项
+      parameters:
+        - name: machineModelId
+          in: path
+          required: true
+          description: 选项类型的ID
+          type: integer
+          format: int64
+        - name: optionId
+          in: path
+          required: true
+          description: 选项类型的ID
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: ok
+  /machine/userMachines:
+    get:
+      tags:
+        - UserMachine
+      summary: 用户车辆认证列表
+      responses:
+        200:
+          description: ok
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/UserMachineBasic'
+  /machine/userMachines/getByuid/{uid}:
+    get:
+      tags:
+        - UserMachine
+      summary: 获取该用户下的所有车辆的详细信息
+      parameters:
+        - name: uid
+          type: integer
+          format: int64
+          in: path
+          required: true
+          description: 用户id
+      responses:
+        200:
+          description: ok
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/UserMachineDetail'
+  /machine/userMachines/{userMachineId}:
+    get:
+      tags:
+        - UserMachine
+      summary: 获取车辆认证的详细信息
+      parameters:
+        - name: userMachineId
+          type: integer
+          format: int64
+          in: path
+          required: true
+          description: 车辆的id
+      responses:
+        200:
+          description: ok
+          schema:
+            $ref: '#/definitions/UserMachineDetail'
+    put:
+      tags:
+        - UserMachine
+      summary: 修改认证
+      parameters:
+        - name: userMachineId
+          type: integer
+          format: int64
+          in: path
+          required: true
+          description: 车辆的id
+        - name: userMachine
+          in: body
+          schema:
+            $ref: '#/definitions/UserMachineDetail'
+          required: true
+      responses:
+        200:
+          description: ok
+  /machine/userMachines/auths/{userMachineId}/status/accept:
+    post:
+      tags:
+        - UserMachine
+      summary: 更改认证状态
+      parameters:
+        - name: userMachineId
+          type: integer
+          format: int64
+          in: path
+          required: true
+          description: 车辆的id
+        - name: buyDate
+          type: integer
+          format: int64
+          in: formData
+          required: true
+          description: 购买日期
+      responses:
+        200:
+          description: ok
+  /machine/userMachines/auths/{userMachineId}/status/deny:
+    post:
+      tags:
+        - UserMachine
+      summary: 拒绝认证
+      parameters:
+        - name: userMachineId
+          type: integer
+          format: int64
+          in: path
+          required: true
+          description: 车辆id
+        - name: reason
+          type: string
+          in: formData
+          required: true
+          description: 失败理由
+      responses:
+        200:
+          description: ok
+  /option/workingTypes:
+    get:
+      tags:
+        - Option
+      summary: 获取所有的作业类型
+      responses:
+        200:
+          description: ok
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/WorkingType"
+    post:
+      tags:
+        - Option
+      summary: 新增一个作业类型
+      parameters:
+        - name: workType
+          in: body
+          schema:
+            $ref: "#/definitions/WorkingType"
+          required: true
+      responses:
+        200:
+          description: ok
+
+  /option/workingTypes/{workingTypeId}:
+    get:
+      tags:
+        - Option
+      summary: 获得一个作业
+      parameters:
+        - name: workingTypeId
+          in: path
+          type: integer
+          format: int64
+          required: true
+      responses:
+        200:
+          description: ok
+          schema:
+            $ref: "#/definitions/WorkingType"
+    put:
+      tags:
+        - Option
+      summary: 新增一个作业类型
+      parameters:
+        - name: workType
+          in: body
+          schema:
+            $ref: "#/definitions/WorkingType"
+          required: true
+        - name: workingTypeId
+          in: path
+          type: integer
+          format: int64
+          required: true
+      responses:
+        200:
+          description: ok
+    delete:
+      tags:
+        - Option
+      summary: 删除一个工作类型
+      parameters:
+        - name: workingTypeId
+          in: path
+          type: integer
+          format: int64
+          required: true
+      responses:
+        200:
+          description: ok
+
+  /option/optionClusters:
+    get:
+      tags:
+       - Option
+      summary: 获取所有的类型
+      responses:
+        200:
+          description: ok
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/OptionCluster'
+    post:
+      tags:
+        - Option
+      summary: 增加一个选项类型
+      parameters:
+        - name: optionCluster
+          in: body
+          required: true
+          description: 新的option选项
+          schema:
+            $ref: '#/definitions/OptionCluster'
+      responses:
+        200:
+          description: ok
+  /option/optionClusters/{clusterId}:
+    get:
+      tags:
+       - Option
+      summary: 获得一个选择集
+      parameters:
+       - name: clusterId
+         in: path
+         required: true
+         description: 选项类型的ID
+         type: integer
+         format: int64
+      responses:
+        200:
+          description: ok
+          schema:
+            $ref: '#/definitions/OptionCluster'
+    put:
+      tags:
+        - Option
+      summary: 修改一个选项类型
+      parameters:
+        - name: optionCluster
+          in: body
+          required: true
+          description: 新的option选项
+          schema:
+            $ref: '#/definitions/OptionCluster'
+        - name: clusterId
+          in: path
+          required: true
+          description: 选项类型的ID
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: ok
+    delete:
+      tags:
+        - Option
+      parameters:
+        - name: clusterId
+          in: path
+          required: true
+          description: 选项类型的ID
+          type: integer
+          format: int64
+      responses:
+        200:
+         description: ok
+
+  /option/optionClusters/{clusterId}/optionDetails:
+    get:
+      tags:
+        - Option
+      summary: 获取这个cluster下面的所有optionDetail
+      parameters:
+        - name: clusterId
+          in: path
+          required: true
+          description: 选项类型的ID
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: ok
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/OptionDetail"
+    post:
+      tags:
+        - Option
+      summary: 获取这个cluster下面的所有optionDetail
+      parameters:
+        - name: clusterId
+          in: path
+          required: true
+          description: 选项类型的ID
+          type: integer
+          format: int64
+        - name: optionDetail
+          in: body
+          required: true
+          description: optionDetail 选项详细信息
+          schema:
+            $ref: "#/definitions/OptionDetail"
+      responses:
+        200:
+          description: ok
+
+  /option/optionClusters/{clusterId}/optionDetails/{detailId}:
+    get:
+      tags:
+        - Option
+      summary: 获得一个选择详细
+      parameters:
+        - name: clusterId
+          in: path
+          required: true
+          description: 选项类型的ID
+          type: integer
+          format: int64
+        - name: detailId
+          in: path
+          required: true
+          description: 选项的id
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: ok
+          schema:
+            $ref: '#/definitions/OptionDetail'
+    put:
+      tags:
+        - Option
+      summary: 修改选项
+      parameters:
+        - name: clusterId
+          in: path
+          required: true
+          description: 选项类型的ID
+          type: integer
+          format: int64
+        - name: detailId
+          in: path
+          required: true
+          description: 选项的id
+          type: integer
+          format: int64
+        - name: optionDetail
+          in: body
+          required: true
+          description: optionDetail 选项详细信息，不用传id
+          schema:
+            $ref: "#/definitions/OptionDetail"
+      responses:
+        200:
+          description: ok
+    delete:
+      tags:
+        - Option
+      summary: 删除选项
+      parameters:
+        - name: clusterId
+          in: path
+          required: true
+          description: 选项类型的ID
+          type: integer
+          format: int64
+        - name: detailId
+          in: path
+          required: true
+          description: 选项的id
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: ok
+  /option/workingTypes/{workingTypeId}/optionCluster:
+    get:
+      tags:
+        - Option
+      summary: 获取workingType的所有OptionCluster
+      parameters:
+        - name: workingTypeId
+          in: path
+          required: true
+          description: 工作类型Id
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: ok
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/OptionCluster"
+  /option/optionClusters/{clusterId}/workingTypes/{workingTypeId}:
+    delete:
+      tags:
+        - Option
+      summary: 删除Cluster和Worktype的关联
+      parameters:
+        - name: clusterId
+          in: path
+          required: true
+          description: 选项类型的ID
+          type: integer
+          format: int64
+        - name: workingTypeId
+          in: path
+          required: true
+          description: 选项类型的ID
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: ok
+    post:
+      tags:
+        - Option
+      summary: 获取clusters对应的workingType
+      parameters:
+        - name: clusterId
+          in: path
+          required: true
+          description: 选项类型的ID
+          type: integer
+          format: int64
+        - name: workingTypeId
+          in: path
+          required: true
+          description: 选项类型的ID
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: ok
+  /users/farmers:
+    get:
+      tags:
+        - Users
+      summary: 获取所有的认证农户
+      responses:
+        200:
+          description: ok
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/UserBasic'
+  /users/drivers:
+    get:
+      tags:
+        - Users
+      summary: 获取所有的机手
+      responses:
+        200:
+          description: ok
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/UserBasic'
+  /users/{uid}:
+    get:
+      tags:
+        - Users
+      summary: 获取用户的详细信息
+      parameters:
+        - name: uid
+          in: path
+          type: integer
+          format: int64
+          required: true
+      responses:
+        200:
+          description: ok
+          schema:
+            $ref: '#/definitions/UserDetail'
+
+  /users/{uid}/roles/driverLeader:
+    post:
+      tags:
+        - Users
+      summary: 提升队长
+      parameters:
+        - name: uid
+          in: path
+          type: integer
+          format: int64
+          required: true
+      responses:
+        200:
+          description: ok
+    delete:
+      tags:
+        - Users
+      summary: 取消其队长资格
+      parameters:
+        - name: uid
+          in: path
+          type: string
+          required: true
+      responses:
+        200:
+          description: ok
+
+  /realNameAuths:
+    get:
+      tags:
+        - RealNameAuths
+      summary: 获取实名认证列表
+      parameters:
+        - name: type
+          required: true
+          in: query
+          type: string
+          enum: *AuthState
+      responses:
+        200:
+          description: ok
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/UserBasic'
+  /realNameAuths/{uid}:
+    get:
+      tags:
+        - RealNameAuths
+      summary: 获取某个人的实名认证详细信息
+      parameters:
+        - name: uid
+          in: path
+          type: integer
+          format: int64
+          required: true
+      responses:
+        200:
+          description: ok
+          schema:
+            $ref: '#/definitions/RealNameAuthDetail'
+  /realNameAuths/{uid}/status/accept:
+    post:
+      tags:
+        - RealNameAuths
+      summary: 通过实名认证
+      parameters:
+        - name: uid
+          in: path
+          type: integer
+          format: int64
+          required: true
+      responses:
+        200:
+          description: ok
+  /realNameAuths/{uid}/status/deny:
+    post:
+      tags:
+        - RealNameAuths
+      summary: 拒绝实名认证
+      parameters:
+        - name: uid
+          in: path
+          type: integer
+          format: int64
+          required: true
+        - name: reason
+          in: formData
+          required: true
+          description: 拒绝的原因
+          type: string
+      responses:
+        200:
+          description: ok
+
+  /grabSeasons:
+      get:
+        tags:
+          - GrabSeason
+        summary: 获取所有的抢单场次
+        responses:
+          200:
+            description: ok
+            schema:
+              type: array
+              items:
+                $ref: '#/definitions/GrabSeason'
+      post:
+       tags:
+        - GrabSeason
+       summary: 创建抢单场次
+       parameters:
+         - name: startTime
+           in: formData
+           description: 开始时间
+           type: integer
+           format: int64
+           required: true
+         - name: endTime
+           in: formData
+           description: 结束时间
+           type: integer
+           format: int64
+           required: true
+         - name: ps
+           in: formData
+           description: 备注信息
+           type: string
+           required: true
+       responses:
+         200:
+          description: ok
+  /grabSeasons/{seasonId}:
+       get:
+         tags:
+           - GrabSeason
+         summary: 获取当前场次信息
+         parameters:
+           - name: seasonId
+             in: path
+             type: string
+             required: true
+         responses:
+          200:
+           description: ok
+           schema:
+             $ref: '#/definitions/GrabSeason'
+       post:
+         tags:
+           - GrabSeason
+         summary: 修改场次的基本信息
+         parameters:
+          - name: seasonId
+            in: path
+            type: string
+            required: true
+          - name: startTime
+            in: formData
+            type: integer
+            format: int64
+            required: true
+          - name: endTime
+            in: formData
+            type: integer
+            format: int64
+            required: true
+          - name: ps
+            in: formData
+            type: string
+            required: true
+         responses:
+          200:
+           description: ok
+       delete:
+         summary: 删除当前场次
+         tags:
+           - GrabSeason
+         parameters:
+           - name: seasonId
+             in: path
+             type: string
+             required: true
+         responses:
+          200:
+           description: ok
+  /grabSeasons/{seasonId}/seasonOrders:
+       get:
+        tags:
+          - GrabSeason
+          - Orders
+        summary: 获取该抢单场次下的订单
+        parameters:
+           - name: seasonId
+             in: path
+             type: string
+             required: true
+        responses:
+          200:
+           description: ok
+           schema:
+            type: array
+            items:
+             $ref: '#/definitions/OrderIdWrapper'
+       post:
+        tags:
+          - GrabSeason
+          - Orders
+        summary: 设置该抢单场次下的订单
+        parameters:
+           - name: seasonId
+             in: path
+             type: string
+             required: true
+           - name: orders
+             in: body
+             schema:
+               type: array
+               items:
+                 $ref: '#/definitions/OrderIdWrapper'
+             required: true
+        responses:
+          200:
+           description: ok
+  /grabSeasons/{seasonId}/status/publish:
+    post:
+      tags:
+        - GrabSeason
+      summary: 发布该抢单场次
+      parameters:
+           - name: seasonId
+             in: path
+             type: string
+             required: true
+      responses:
+        200:
+         description: ok
+  /grabSeasons/{seasonId}/status/draft:
+    post:
+      tags:
+        - GrabSeason
+      summary: 将该抢单场次设为草稿状态
+      parameters:
+           - name: seasonId
+             in: path
+             type: string
+             required: true
+      responses:
+        200:
+         description: ok
+  /team:
+    get:
+      tags:
+        - Team
+      summary: 获得所有组队信息
+      parameters:
+        - name: orderId
+          in: query
+          type: string
+      responses:
+        200:
+          description: ok
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/TeamBasic'
+
+  /team/{teamId}:
+    get:
+      tags:
+        - Team
+      summary: 获得所有指定组队信息详细
+      parameters:
+        - name: teamId
+          in: path
+          type: integer
+          format: int64
+          required: true
+      responses:
+        200:
+          description: ok
+          schema:
+            $ref: '#/definitions/TeamDetail'
+    put:
+      tags:
+        - Team
+      summary: 更换队长
+      parameters:
+        - name: teamId
+          in: path
+          type: integer
+          format: int64
+          required: true
+        - name: tel
+          in: formData
+          type: string
+          required: true
+      responses:
+        200:
+          description: ok
+    post:
+      tags:
+        - Team
+      summary: 添加队员
+      parameters:
+        - name: teamId
+          in: path
+          type: integer
+          format: int64
+          required: true
+        - name: tel
+          in: formData
+          type: string
+          required: true
+        - name: isPay
+          in: formData
+          type: boolean
+          required: true
+      responses:
+        200:
+          description: ok
+    delete:
+      tags:
+        - Team
+      summary: 删除队员
+      parameters:
+        - name: teamId
+          in: path
+          type: integer
+          format: int64
+          required: true
+        - name: tel
+          in: query
+          type: string
+          required: true
+        - name: punishInsurance
+          in: query
+          type: integer
+          format: int32
+          required: true
+        - name: isPunished
+          in: query
+          type: boolean
+          required: true
+      responses:
+        200:
+          description: ok
+definitions:
+  ClientType:
+    type: string
+    enum: *ClientType
+  ChargeChannelType:
+    type: string
+    enum: *ChargeChannelType
+  RescRoleMethod:
+    type: string
+    enum: *RescRoleMethod
+  AuthState:
+    type: string
+    enum: *AuthState
+  OrderMultiInfoType:
+    type: string
+    enum: *OrderMultiInfoType
+
+  Role:
+    type: object
+    properties:
+      id:
+        type: integer
+        description: 唯一标识
+      name:
+        type: string
+        description: 名称
+      description:
+        type: string
+        description: 角色的描述
+  Resc:
+    type: object
+    properties:
+      id:
+        type: integer
+      resource:
+        type: string
+      name:
+        type: string
+      description:
+        type: string
+  ManagerAccount:
+    type: object
+    properties:
+      username:
+        type: string
+      name:
+        type: string
+      phone:
+        type: string
+      superior:
+        type: string
+      password:
+        type: string
+
+  RoleRescMap:
+    type: object
+    properties:
+      resc_id:
+        type: integer
+      role_id:
+        type: integer
+      method:
+        type: string
+        default: ALL
+        enum: *RescRoleMethod
+  RoleAccoutMap:
+    type: object
+    properties:
+      username:
+        type: string
+      role_id:
+        type: integer
+
+
+
+  UserBasic:
+    type: object
+    discriminator: className
+    properties:
+      uid:
+        type: integer
+        format: int64
+        description: 用户的唯一标识
+      name:
+        type: string
+        description: 用户的名字
+      phoneStar:
+        type: string
+        description: 用户的手机号，打了马赛克的
+      createTime:
+        type: integer
+        format: int64
+        description: 创建时间，单位 ms
+      role:
+        type: string
+        default: DRIVER
+        enum:
+          - DRIVER
+          - FARMER
+          - DRIVER_LEADER
+        description: >
+          用户的类型：
+           * DRIVER - 机手
+           * FARMER - 农户
+      leader:
+        type: boolean
+        description: 是不是队长
+      authed:
+        type: string
+        enum: *AuthState
+      portraitUrl:
+        type: string
+        description: 用户的头像链接，需要从阿里云获取
+      leaderStar:
+        type: number
+        format: double
+        description: 队长分，非队长没有，总分五分
+      memberStar:
+        type: number
+        format: double
+        description: 队员分，总分五分
+      geoInfo:
+        $ref: '#/definitions/UserGeo'
+
+  UserDetail:
+    allOf:
+      - $ref: '#/definitions/UserBasic'
+      - type: object
+        properties:
+          phone:
+            type: string
+            description: 用户的手机号
+          region:
+            type: string
+            description: 生源地，通过身份证号确认的
+          sex:
+            type: string
+            description: 性别，通过身份证号确认的
+          age:
+            type: string
+            description: 年龄，通过身份证号确认
+
+
+
+  RealNameAuthDetail:
+    allOf:
+      - $ref: '#/definitions/UserDetail'
+      - type: object
+        properties:
+          uid:
+            type: integer
+            format: int64
+          idCardNum:
+            type: string
+            description: 身份证号
+          upSideImage:
+            type: string
+            description: 正面
+          downSideImage:
+            type: string
+            description: 反面
+          updateTime:
+            type: integer
+            format: int64
+          failedReason:
+            type: string
+          state:
+            type: string
+            enum: *AuthState
+
+
+  UserMachineBasic:
+    type: object
+    discriminator: className
+    properties:
+      id:
+        type: integer
+        format: int64
+      uid:
+        type: integer
+        format: int64
+      username:
+        type: string
+        description: 用户名
+      tel:
+        type: string
+        description: 用户电话
+      state:
+        type: string
+        enum: *AuthState
+      modelId:
+        type: integer
+        format: int64
+        description: 车辆模型id
+      brand:
+        type: string
+        description: 车辆品牌
+      brand_num:
+        type: string
+        description: 车辆型号
+      integrity:
+        type: integer
+        description: 信息是否完整
+
+  UserMachineDetail:
+    allOf:
+      - $ref: '#/definitions/UserMachineBasic'
+      - type: object
+        properties:
+          machinetype:
+            $ref: '#/definitions/MachineType'
+          power:
+            type: number
+            format: double
+            description: 马力
+          cutnum:
+            type: number
+            format: double
+            description: 喂入量
+          reason:
+            type: string
+            description: 理由
+          buytime:
+            type: integer
+            format: int64
+            description: 购买时间
+          authImage:
+            type: array
+            items:
+              type: string
+            description: 车辆认证的图片url
+          machineproperties:
+            type: array
+            items:
+              $ref: '#/definitions/MachineProperty'
+          modelproperties:
+            type: array
+            items:
+              $ref: '#/definitions/ModelProperty'
+  MachineProperty:
+    type: object
+    properties:
+      optionCluster:
+        $ref: '#/definitions/OptionCluster'
+      optionDetail:
+        $ref: '#/definitions/OptionDetail'
+  MachineModel:
+    type: object
+    properties:
+      id:
+        type: integer
+        format: int64
+      machineType:
+        $ref: '#/definitions/MachineType'
+      brand:
+        type: string
+      model_num:
+        type: string
+      power:
+        type: number
+        format: double
+      cut_num:
+        type: number
+        format: double
+      modelproperties:
+         type: array
+         items:
+           $ref: '#/definitions/ModelProperty'
+  ModelProperty:
+    type: object
+    properties:
+      optionCluster:
+        $ref: '#/definitions/OptionCluster'
+      optionDetials:
+        type: array
+        items:
+          $ref: '#/definitions/OptionDetail'
+  MachineType:
+    type: object
+    properties:
+      id:
+        type: integer
+        format: int64
+      name:
+        type: string
+      description:
+        type: string
+
+  OrderBasic:
+    type: object
+    discriminator: className
+    properties:
+      orderId:
+        type: string
+      farmerName:
+        type: string
+        description: order's contactor
+      farmerTel:
+        type: string
+        description: order's phoneNumber
+      orderGeo:
+        $ref: '#/definitions/OrderGeo'
+      auth:
+        type: string
+        default: WAITING_AUTH
+        enum:
+          - WAITING_AUTH
+          - AUTHED
+          - DENIED
+      size:
+        type: number
+        format: double
+      uniPrice:
+        type: integer
+      desireNum:
+        type: integer
+      options:
+        type: array
+        items:
+          $ref: "#/definitions/Option"
+      workingType:
+        $ref: "#/definitions/WorkingType"
+      desireTime:
+        type: integer
+        format: int64
+
+      state:
+        type: string
+        enum: &OrderStates
+          - FARMER_WAITTING_AUTH
+          - FARMER_WAITTING_PAY
+          - FARMER_WATTING_CHOOSE_FIELD
+          - FARMER_WAITTING_GOT
+          - FARMER_GOT
+          - FARMER_WORKING
+          - FARMER_TODAY_WORKING_STOP
+          - FARMER_WAITTING_SIZE_ENSURE
+          - FARMER_WAITTING_DISTRIBUTE
+          - FARMER_TODAY_WORK_FINISHED
+          - FARMER_ALL_FINISHED
+          - FARMER_CANCELED
+          - FARMER_AUTH_FAILED
+        description: >
+          OrderStates:
+            * FARMER_WAITTING_AUTH - 等待认证
+            * FARMER_WAITTING_PAY - 等待农户支付
+            * FARMER_WATTING_CHOOSE_FIELD - 等待农户选择地块
+            * FARMER_WAITTING_GOT - 等待机手接单
+            * FARMER_GOT - 已被接单
+            * FARMER_WORKING - 机手正在工作
+            * FARMER_TODAY_WORKING_STOP - 等待确认当日亩数
+            * FARMER_WAITTING_SIZE_ENSURE - 等待确认当日亩数
+            * FARMER_WAITTING_DISTRIBUTE - 等待分配作业面积
+            * FARMER_TODAY_WORK_FINISHED - 今日作业完成
+            * FARMER_ALL_FINISHED - 订单全部完成
+            * FARMER_CANCELED - 订单已经取消
+            * FARMER_AUTH_FAILED - 订单认证失败
+
+
+  OrderDetail:
+    allOf:
+      - $ref: "#/definitions/OrderBasic"
+      - type: object
+        properties:
+          belongto:
+            $ref: '#/definitions/UserBasic'
+          tags:
+            type: array
+            items:
+              $ref: "#/definitions/OrderTag"
+            description: tags
+          inviteLeader:
+            $ref: '#/definitions/UserBasic'
+          farmerDiscount:
+            type: integer
+            description: 对农户的打折 (1-100)
+          farmerPrepayRate:
+            type: integer
+            description: 农户的预付比例（1-100）
+          driverInsurance:
+            type: integer
+            description: 接单的农机手需要交的保证金（单位：分）
+          leaderBonus:
+            type: integer
+            description: 队长每亩的作业提成,取值范围（0-10000）意味着万分之几
+          companyBonus:
+            type: integer
+            description: 公司每亩作业的提成,取值范围（0-10000）意味着万分之几
+
+  OrderTag:
+    type: object
+    properties:
+      tagName:
+        type: string
+        description: tag的名称
+
+  Option:
+    type: object
+    properties:
+      id:
+        type: integer
+        format: int64
+        description: 选项的id
+      name:
+        type: string
+        description: 选项的名称
+      clusterName:
+        type: string
+        description: 选项类型的名称
+      clusterId:
+        type: integer
+        format: int64
+        description: 选项类型id
+
+
+  OptionCluster:
+    type: object
+    properties:
+      id:
+        type: integer
+        format: int64
+      name:
+        type: string
+      description:
+        type: string
+
+  OptionDetail:
+    type: object
+    properties:
+      id:
+        type: integer
+        format: int64
+      name:
+        type: string
+      descprition:
+        type: string
+
+
+  WorkingType:
+    type: object
+    description: 作物种类和作业类型
+    properties:
+      id:
+        type: integer
+        format: int64
+        description: 作物种类和作业类型的ID
+      cropType:
+        type: string
+        description: 作物（如：玉米）
+      workingType:
+        type: string
+        description: 作业种类（如：收割）
+
+  TeamBasic:
+    type: object
+    discriminator: className
+    properties:
+      leaderUid:
+        type: integer
+        format: int64
+      leaderName:
+        type: string
+      leaderTel:
+        type: string
+      orderId:
+        type: string
+      teamId:
+        type: integer
+        format: int64
+      teamDescription:
+        type: string
+  TeamDetail:
+    allOf:
+      - $ref: '#/definitions/TeamBasic'
+      - type: object
+        properties:
+          teamMember:
+            type: array
+            items:
+              $ref: '#/definitions/TeamMember'
+  TeamMember:
+    type: object
+    discriminator: className
+    properties:
+      uid:
+        type: integer
+        format: int64
+      name:
+        type: string
+      tel:
+        type: string
+
+
+  UserGeo:
+    type: object
+    description: 用户的地理位置信息
+    properties:
+      uid:
+        type: integer
+        format: int64
+        description: 用户的id
+      province:
+        type: string
+      city:
+        type: string
+      district:
+        type: string
+      street:
+        type: string
+      streetNumber:
+        type: string
+      address:
+        type: string
+      latitude:
+        type: number
+        format: double
+      longitude:
+        type: number
+        format: double
+      updateTime:
+        type: integer
+        format: int64
+        description: 最后一次更新时间(ms)
+
+
+  OrderGeo:
+      type: object
+      description: 订单的地理坐标
+      properties:
+        province:
+          type: string
+        city:
+          type: string
+        county:
+          type: string
+        town:
+          type: string
+        detail:
+          type: string
+        latitude:
+          type: number
+          format: double
+        longitude:
+          type: number
+          format: double
+
+  OrderMultiInfo:
+    type: object
+    description: |
+      订单的多维度数据，根据type的不同，extra_info 也是不同的，现在包含两种
+    properties:
+      id:
+        type: integer
+        format: int64
+      order_id:
+        type: string
+      create_time:
+        type: integer
+        format: int64
+      update_time:
+        type: integer
+        format: int64
+      published:
+        type: boolean
+        description: true 是发布了，否则为没有发布
+      type:
+        type: string
+        enum: *OrderMultiInfoType
+      content:
+        type: string
+        description: 一句话内容
+      extra_info:
+        type: string
+        description: 根据不同的type有不同的extra_info，如果是 size 则没有，如果是 photo那么就是一个List<String>的json串
+
+  BusinessError:
+    type: object
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+
+  GrabSeason:
+    type: object
+    description: 抢单场次
+    properties:
+      seasonId:
+        type: string
+        description: 场次的id
+      startTime:
+        type: integer
+        format: int64
+        description: 场次开始时间
+      endTime:
+        type: integer
+        format: int64
+        description: 场次结束时间
+      state:
+        type: string
+        enum:
+           - PUBLISHED
+           - DRAFT
+      ps:
+        type: string
+        description: 备注
+
+  OrderIdWrapper:
+    type: object
+    description: orderid
+    properties:
+      orderId:
+        type: string
+
+  AlarmType:
+   type: object
+   description: 警报类型
+   properties:
+     alarmId:
+       type: integer
+       format: int64
+       description: 警报ID
+     name:
+       type: string
+       description: 警报名称
+     alarmDescription:
+       type: string
+       description: 警报描述
+     timePoint:
+        type: integer
+        description: 警报时间点
+     timePeriod:
+        type: integer
+        description: 警报时间段
+     distance:
+        type: integer
+        description: 距离（km）
+     speed:
+        type: integer
+        description: 速度（亩/h）
+     priority:
+        type: integer
+        description: 优先级
+     state:
+        type: integer
+        description: 警报是否开启
+
+  AlarmNotify:
+    type: object
+    description: 报警详情
+    properties:
+      id:
+        type: integer
+        format: int64
+        description: 报警id
+      typeId:
+        type: integer
+        format: int64
+        description: 报警类型id
+      typeName:
+        type: string
+        description: 报警类型名称
+      typeDescritpion:
+        type: string
+        description: 报警描述
+      typePriority:
+        type: integer
+        description: 类型优先级
+      orderId:
+        type: string
+        description: 订单
+      driverId:
+        type: integer
+        format: int64
+        description: 机手id
+      driverName:
+        type: string
+        description: 机手姓名
+      driverTel:
+        type: string
+        description: 机手电话
+      leaderId:
+        type: integer
+        format: int64
+        description: 队长id
+      leaderName:
+        type: string
+        description: 队长姓名
+      leaderTel:
+        type: string
+        description: 队长电话
+      ceateTime:
+        type: integer
+        format: int64
+        description: 创建时间
+      state:
+        type: integer
+        description: 处理状态
+      result:
+        type: string
+        description: 处理结果

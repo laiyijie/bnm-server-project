@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration PUBLIC
+		"-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+		"http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+<generatorConfiguration>
+
+	<classPathEntry
+			location="C:\Users\lucq\.m2\repository\mysql\mysql-connector-java\5.1.38\mysql-connector-java-5.1.38.jar" />
+
+	<context id="context1">
+		<plugin type="org.mybatis.generator.plugins.RenameExampleClassPlugin">
+			<property name="searchString" value="Example$" />
+			<property name="replaceString" value="Criteria" />
+		</plugin>
+		<commentGenerator>
+			<!-- 是否去除自动生成的注释 true：是 ： false:否 -->
+			<property name="suppressAllComments" value="true" />
+		</commentGenerator>
+		<jdbcConnection connectionURL="jdbc:mysql://127.0.0.1:3306/bnm_main"
+						driverClass="com.mysql.jdbc.Driver" password="liang123"
+						userId="root" />
+		<javaModelGenerator targetPackage="cn.bangnongmang.data.domain"
+							targetProject="src/main/java" />
+		<sqlMapGenerator targetPackage="cn.bangnongmang.data.mapper"
+						 targetProject="src/main/java" />
+		<javaClientGenerator targetPackage="cn.bangnongmang.data.dao"
+							 targetProject="src/main/java" type="XMLMAPPER" />
+
+
+		<table schema="bnm_main" tableName="account" domainObjectName="Account">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+
+		<table schema="bnm_main" tableName="phoneverify" domainObjectName="PhoneVerify">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+
+		<!-- pocket 用表 -->
+		<table schema="bnm_main" tableName="pocket" domainObjectName="Pocket">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+		<table schema="bnm_main" tableName="pocket_log" domainObjectName="PocketLog">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+		<table schema="bnm_main" tableName="bank_card" domainObjectName="BankCard">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+		<!-- pocket 用表end -->
+
+		<table schema="bnm_main" tableName="region" domainObjectName="Region">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+		<table schema="bnm_main" tableName="grab_season" domainObjectName="GrabSeason">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+		<table schema="bnm_main" tableName="season_orders"
+			   domainObjectName="SeasonOrders">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+		<table schema="bnm_main" tableName="push_event" domainObjectName="PushEvent">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+		<table schema="bnm_main" tableName="order_geo" domainObjectName="OrderGeo">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+		<table schema="bnm_main" tableName="count_visit" domainObjectName="VisitLogItem">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+		<table schema="bnm_main" tableName="region_geo" domainObjectName="RegionGeo">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+
+
+		<table schema="bnm_main" tableName="friendship" domainObjectName="Friendship">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+		<table schema="bnm_main" tableName="friendship_request"
+			   domainObjectName="FriendshipRequest">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+		<table schema="bnm_main" tableName="friendship_special"
+			   domainObjectName="FriendshipSpecial">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+		<table schema="bnm_main" tableName="portrait_info"
+			   domainObjectName="AccountPortrait">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+		<table schema="bnm_main" tableName="account_geo" domainObjectName="AccountGeo">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+
+		<table schema="bnm_main" tableName="user_machine" domainObjectName="UserMachine">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+		<table schema="bnm_main" tableName="user_machine_auth_image"
+			   domainObjectName="UserMachineAuthImage">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+		<table schema="bnm_main" tableName="user_machine_model"
+			   domainObjectName="UserMachineModel">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+		<table schema="bnm_main" tableName="user_machine_type"
+			   domainObjectName="UserMachineType">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+		<table schema="bnm_main" tableName="user_work_efficiency"
+			   domainObjectName="UserWorkEfficiency">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+		<table schema="bnm_main" tableName="user_work_calendar"
+			   domainObjectName="UserWorkCalendar">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+		<table schema="bnm_main" tableName="user_machine_type_drivercard_image"
+			   domainObjectName="UserMachineTypeDriverCardImage">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+		<table schema="bnm_main" tableName="account_real_name_auth"
+			   domainObjectName="AccountRealNameAuth">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+
+		<table schema="bnm_main" tableName="team_in_order"
+			   domainObjectName="TeamInOrder">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+		<table schema="bnm_main" tableName="team_join_request"
+			   domainObjectName="TeamJoinRequest">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+
+		<table schema="bnm_main" tableName="follow_order" domainObjectName="FollowOrder">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+
+		<table schema="bnm_main" tableName="game_count" domainObjectName="GameCount">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+
+		<table schema="bnm_main" tableName="area_price" domainObjectName="AreaPrice">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+		<!-- order 和 machine 的option 关联表 共六张 開始 -->
+		<table schema="bnm_main" tableName="option_cluster"
+			   domainObjectName="OptionCluster">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+		<table schema="bnm_main" tableName="option_cluster_working_type_mapping"
+			   domainObjectName="OptionClusterWorkingTypeMapping">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+		<table schema="bnm_main" tableName="option_detail"
+			   domainObjectName="OptionDetail">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+		<table schema="bnm_main" tableName="option_machine_model_mapping"
+			   domainObjectName="OptionMachineModelMapping">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+		<table schema="bnm_main" tableName="option_order_mapping"
+			   domainObjectName="OptionOrderMapping">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+		<table schema="bnm_main" tableName="option_working_type"
+			   domainObjectName="OptionWorkingType">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+		<table schema="bnm_main" tableName="option_working_type_machine_model_mapping"
+			   domainObjectName="OptionWorkingTypeMachineModelMapping">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+
+		<table schema="bnm_main" tableName="user_machine_option_detail_mapping"
+			   domainObjectName="UserMachineOptionDetailMapping">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+		<table schema="bnm_main" tableName="machine_type_option_cluster_mapping"
+			   domainObjectName="MachineTypeOptionClusterMapping">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+
+		<!-- order 和 machine 的option 关联表 共7张 結束 -->
+
+		<!-- 新的order用表 -->
+		<table schema="bnm_main" tableName="order_farmer" domainObjectName="OrderFarmer">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+
+		<table schema="bnm_main" tableName="order_driver" domainObjectName="OrderDriver">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+
+		<table schema="bnm_main" tableName="order_driver_work_size"
+			   domainObjectName="OrderDriverWorkSize">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+
+		<table schema="bnm_main" tableName="order_farmer_work_size"
+			   domainObjectName="OrderFarmerWorkSize">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+		<table schema="bnm_main" tableName="order_work_size_image"
+			   domainObjectName="OrderWorkSizeImage">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+		<table schema="bnm_main" tableName="order_invite" domainObjectName="OrderInvite">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+		<table schema="bnm_main" tableName="order_insurance_record"
+			   domainObjectName="OrderInsuranceRecord">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+		<table schema="bnm_main" tableName="order_multi_info"
+			   domainObjectName="OrderMultiInfo">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+		<!-- 新的order用表结束 -->
+
+		<!-- 评分系统用表 -->
+		<table schema="bnm_main" tableName="star_user" domainObjectName="StarUser">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+		<table schema="bnm_main" tableName="star_evaluations"
+			   domainObjectName="StarEvaluations">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+		<!-- 评分系统用表结束 -->
+
+		<!--好友邀请-->
+		<table schema="bnm_main" tableName="invite_friend"
+			   domainObjectName="InviteFriend">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+		<!--好友邀请结束-->
+
+		<!-- 安卓版本管理 -->
+		<table schema="bnm_main" tableName="version_control"
+			   domainObjectName="VersionControl">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+		<!-- end -->
+	</context>
+</generatorConfiguration>

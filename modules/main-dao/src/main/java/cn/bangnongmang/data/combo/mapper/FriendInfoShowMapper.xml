@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.bangnongmang.data.combo.dao.FriendInfoShowMapper">
+
+
+	<resultMap type="cn.bangnongmang.data.combo.domain.FriendRequestInfoShow"
+		id="FriendRequestInfoShowMapper">
+		<id column="fris_id" jdbcType="BIGINT" property="id" />
+		<association property="friendshipRequest"
+			resultMap="cn.bangnongmang.data.dao.FriendshipRequestMapper.BaseResultMap"
+			columnPrefix="fr_" />
+		<association property="userBasicInfoShow"
+			resultMap="cn.bangnongmang.data.combo.dao.UserBasicInfoShowMapper.BaseResultMap"
+			columnPrefix="ubis_" />
+	</resultMap>
+
+	<resultMap type="cn.bangnongmang.data.combo.domain.FriendInfoShow"
+		id="FriendInfoShowMapper">
+		<id column="fis_id" jdbcType="BIGINT" property="id" />
+		<association property="friendship"
+			resultMap="cn.bangnongmang.data.dao.FriendshipMapper.BaseResultMap"
+			columnPrefix="f_" />
+		<association property="friendshipSpecial"
+			resultMap="cn.bangnongmang.data.dao.FriendshipSpecialMapper.BaseResultMap"
+			columnPrefix="fs_" />
+		<association property="userBasicInfoShow"
+			resultMap="cn.bangnongmang.data.combo.dao.UserBasicInfoShowMapper.BaseResultMap"
+			columnPrefix="ubis_" />
+	</resultMap>
+
+	<sql id="baseCol">
+		fr.id as fris_id,
+		fr.id as fr_id,
+		fr.requester as fr_requester,
+		fr.responser as fr_responser,
+		fr.state as fr_state,
+		fr.create_time as
+		fr_create_time,
+		fr.ps as fr_ps,
+		<include
+			refid="cn.bangnongmang.data.combo.dao.UserBasicInfoShowMapper.baseCol">
+			<property name="a" value="ubis_a" />
+			<property name="ag" value="ubis_ag" />
+			<property name="arna" value="ubis_arna" />
+			<property name="su" value="ubis_su" />
+			<property name="ap" value="ubis_ap" />
+			<property name="pre" value="ubis_" />
+		</include>
+	</sql>
+
+
+	<sql id="friendshipCol">
+		f.id as fis_id,
+		f.id as f_id,
+		f.usera as f_usera,
+		f.userb as f_userb,
+		f.create_time as f_create_time,
+		fs.id as fs_id,
+		fs.belongto as
+		fs_belongto,
+		fs.friend_uid as fs_friend_uid,
+		<include
+			refid="cn.bangnongmang.data.combo.dao.UserBasicInfoShowMapper.baseCol">
+			<property name="a" value="ubis_a" />
+			<property name="ag" value="ubis_ag" />
+			<property name="arna" value="ubis_arna" />
+			<property name="su" value="ubis_su" />
+			<property name="ap" value="ubis_ap" />
+			<property name="pre" value="ubis_" />
+		</include>
+	</sql>
+
+	<sql id="baseJoin">
+
+		`friendship_request` fr left outer join
+
+		<include
+			refid="cn.bangnongmang.data.combo.dao.UserBasicInfoShowMapper.baseJoin">
+			<property name="a" value="ubis_a" />
+			<property name="ag" value="ubis_ag" />
+			<property name="arna" value="ubis_arna" />
+			<property name="su" value="ubis_su" />
+			<property name="ap" value="ubis_ap" />
+			<property name="a_on" value="on ubis_a.uid=fr.requester" />
+		</include>
+
+	</sql>
+
+
+	<sql id="friendshipJoin">
+
+		`friendship` f left outer join
+
+		<include
+			refid="cn.bangnongmang.data.combo.dao.UserBasicInfoShowMapper.baseJoin">
+			<property name="a" value="ubis_a" />
+			<property name="ag" value="ubis_ag" />
+			<property name="arna" value="ubis_arna" />
+			<property name="su" value="ubis_su" />
+			<property name="ap" value="ubis_ap" />
+			<property name="a_on" value="on ubis_a.uid=f.userb" />
+		</include>
+
+		left outer join `friendship_special` fs on fs.belongto = f.usera and
+		fs.friend_uid = f.userb
+
+	</sql>
+
+	<select id="selectFriendRequestListByResponser"
+		resultMap="FriendRequestInfoShowMapper">
+		SELECT
+		<include refid="baseCol">
+		</include>
+		FROM
+		<include refid="baseJoin">
+		</include>
+		where fr.responser = #{responser}
+	</select>
+
+	<select id="selectFriendListByUsera"
+		resultMap="FriendInfoShowMapper">
+		SELECT
+		<include refid="friendshipCol">
+		</include>
+		FROM
+		<include refid="friendshipJoin">
+		</include>
+		where f.usera = #{usera}
+	</select>
+
+	<select id="selectFriendInfoShowByUseraAndUserb"
+		resultMap="FriendInfoShowMapper">
+		SELECT
+		<include refid="friendshipCol">
+		</include>
+		FROM
+		<include refid="friendshipJoin">
+		</include>
+		where f.usera = #{usera} and f.userb = #{userb}
+	</select>
+
+	<select id="selectFriendListByUseraAndUserbList"
+			resultMap="FriendInfoShowMapper">
+		SELECT
+		<include refid="friendshipCol">
+		</include>
+		FROM
+		<include refid="friendshipJoin">
+		</include>
+		where f.usera = #{usera}
+		AND
+		ubis_a.username IN
+		<foreach item="item" index="index" collection="phoneList"
+				 open="(" separator="," close=")">
+		#{item}
+		</foreach>
+	</select>
+</mapper>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+
+	<Appenders>
+		<!-- 控制台，用于调测使用 -->
+		<Console name="console" target="SYSTEM_OUT">
+			<PatternLayout pattern="[%p][%d{MMdd HH:mm:ss SSS}] - %m%n" />
+			<Charset>UTF-8</Charset>
+		</Console>
+	</Appenders>
+
+	<Loggers>
+		<!-- 其他第三方额外的log输出 -->
+		<Root level="info">
+			<AppenderRef ref="console" />
+		</Root>
+	</Loggers>
+</Configuration>

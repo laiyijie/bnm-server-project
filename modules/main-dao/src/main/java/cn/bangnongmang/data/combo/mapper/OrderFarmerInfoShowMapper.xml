@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.bangnongmang.data.combo.dao.OrderFarmerInfoShowMapper">
+
+	<resultMap type="cn.bangnongmang.data.combo.domain.OptionClusterDetailInfo"
+		id="OptionResultMapper">
+		<id column="ocdi_id" jdbcType="VARCHAR" property="id" />
+		<association property="optionCluster"
+			resultMap="cn.bangnongmang.data.dao.OptionClusterMapper.BaseResultMap"
+			columnPrefix="oc_" />
+		<association property="optionDetail"
+			resultMap="cn.bangnongmang.data.dao.OptionDetailMapper.BaseResultMap"
+			columnPrefix="od_" />
+	</resultMap>
+	<resultMap type="cn.bangnongmang.data.combo.domain.OrderFarmerInfoShow"
+		id="BaseResultMap">
+		<id column="ofis_id" jdbcType="VARCHAR" property="id" />
+		<association property="orderFarmer"
+			resultMap="cn.bangnongmang.data.dao.OrderFarmerMapper.BaseResultMap"
+			columnPrefix="of_" />
+		<association property="orderGeo"
+			resultMap="cn.bangnongmang.data.dao.OrderGeoMapper.BaseResultMap"
+			columnPrefix="og_" />
+		<association property="optionWorkingType"
+			resultMap="cn.bangnongmang.data.dao.OptionWorkingTypeMapper.BaseResultMap"
+			columnPrefix="owt_" />
+		<collection property="options" resultMap="OptionResultMapper"
+			columnPrefix="o_" />
+	</resultMap>
+
+	<sql id="baseCol">
+		${of}.order_id as ${pre}ofis_id,
+		${of}.order_id as
+		${of}_order_id,
+		${of}.uid as ${of}_uid,
+		${of}.name as
+		${of}_name,
+		${of}.tel as ${of}_tel,
+		${of}.province as ${of}_province,
+		${of}.city as ${of}_city,
+		${of}.county as ${of}_county,
+		${of}.town as
+		${of}_town,
+		${of}.detail as ${of}_detail,
+		${of}.desire_num as
+		${of}_desire_num,
+		${of}.size as ${of}_size,
+		${of}.working_type_id as
+		${of}_working_type_id,
+		${of}.desire_start_time as
+		${of}_desire_start_time,
+		${of}.uni_price as ${of}_uni_price,
+		${of}.discount as ${of}_discount,
+		${of}.pre_pay_rate as
+		${of}_pre_pay_rate,
+		${of}.state as ${of}_state,
+		${of}.tags as
+		${of}_tags,
+		${of}.got_time as ${of}_got_time,
+		${of}.driver_leader as
+		${of}_driver_leader,
+		${of}.actual_start_time as
+		${of}_actual_start_time,
+		${of}.actual_finish_time as
+		${of}_actual_finish_time,
+		${of}.company_bonus as ${of}_company_bonus,
+		${of}.leader_bonus as ${of}_leader_bonus,
+		${of}.driver_insurance as
+		${of}_driver_insurance,
+
+		${og}.order_id as
+		${og}_order_id,
+		${og}.latitude as ${og}_latitude,
+		${og}.longtitude as
+		${og}_longtitude,
+		${og}.ps as ${og}_ps,
+
+		${owt}.id as ${owt}_id,
+		${owt}.crop_type as
+		${owt}_crop_type,
+		${owt}.working_type as
+		${owt}_working_type,
+
+		${od}.id
+		as ${pre_o}o_ocdi_id,
+		${oc}.id as
+		${pre_o}o_oc_id,
+		${oc}.cluster_name as
+		${pre_o}o_oc_cluster_name,
+		${oc}.description as
+		${pre_o}o_oc_description,
+
+		${od}.id as
+		${pre_o}o_od_id,
+		${od}.option_name as ${pre_o}o_od_option_name,
+		${od}.cluster_id as
+		${pre_o}o_od_cluster_id,
+		${od}.description as
+		${pre_o}o_od_description
+	</sql>
+
+	<sql id="baseJoin">
+		`order_farmer` ${of} ${on}
+		left outer join `order_geo` ${og}
+		on
+		${og}.order_id = ${of}.order_id
+		left outer join `option_working_type`
+		${owt} on
+		${owt}.id = ${of}.working_type_id
+		left outer join
+		`option_order_mapping` ${oom}
+		on ${oom}.order_id = ${of}.order_id
+		left
+		outer join `option_detail` ${od} on
+		${od}.id = ${oom}.option_id
+		left
+		outer join `option_cluster` ${oc} on ${oc}.id =
+		${od}.cluster_id
+	</sql>
+
+	<select id="selectOrderFarmerInfoShowByUid"
+		resultMap="BaseResultMap">
+		SELECT
+		<include refid="baseCol">
+			<property name="of" value="of" />
+			<property name="pre" value="" />
+			<property name="og" value="og" />
+			<property name="owt" value="owt" />
+			<property name="pre_o" value="" />
+			<property name="oc" value="oc" />
+			<property name="od" value="od" />
+		</include>
+		FROM
+		<include refid="baseJoin">
+			<property name="on" value="" />
+			<property name="of" value="of" />
+			<property name="og" value="og" />
+			<property name="owt" value="owt" />
+			<property name="oom" value="oom" />
+			<property name="oc" value="oc" />
+			<property name="od" value="od" />
+		</include>
+		where of.uid = #{uid}
+	</select>
+
+
+	<select id="selectOrderFarmerInfoShowByState" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		SELECT
+		<include refid="baseCol">
+			<property name="of" value="of" />
+			<property name="pre" value="" />
+			<property name="og" value="og" />
+			<property name="owt" value="owt" />
+			<property name="pre_o" value="" />
+			<property name="oc" value="oc" />
+			<property name="od" value="od" />
+		</include>
+		FROM
+		<include refid="baseJoin">
+			<property name="on" value="" />
+			<property name="of" value="of" />
+			<property name="og" value="og" />
+			<property name="owt" value="owt" />
+			<property name="oom" value="oom" />
+			<property name="oc" value="oc" />
+			<property name="od" value="od" />
+		</include>
+		where of.state = #{state,jdbcType=VARCHAR}
+	</select>
+
+
+
+	<select id="selectOrderFarmerInfoShowByOrderId" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		SELECT
+		<include refid="baseCol">
+			<property name="of" value="of" />
+			<property name="pre" value="" />
+			<property name="og" value="og" />
+			<property name="owt" value="owt" />
+			<property name="pre_o" value="" />
+			<property name="oc" value="oc" />
+			<property name="od" value="od" />
+		</include>
+		FROM
+		<include refid="baseJoin">
+			<property name="on" value="" />
+			<property name="of" value="of" />
+			<property name="og" value="og" />
+			<property name="owt" value="owt" />
+			<property name="oom" value="oom" />
+			<property name="oc" value="oc" />
+			<property name="od" value="od" />
+		</include>
+		where of.order_id = #{orderId,jdbcType=VARCHAR}
+	</select>
+
+	<select id="selectOrderFarmerInfoShow" resultMap="BaseResultMap">
+		SELECT
+		<include refid="baseCol">
+			<property name="of" value="of" />
+			<property name="pre" value="" />
+			<property name="og" value="og" />
+			<property name="owt" value="owt" />
+			<property name="pre_o" value="" />
+			<property name="oc" value="oc" />
+			<property name="od" value="od" />
+		</include>
+		FROM
+		<include refid="baseJoin">
+			<property name="on" value="" />
+			<property name="of" value="of" />
+			<property name="og" value="og" />
+			<property name="owt" value="owt" />
+			<property name="oom" value="oom" />
+			<property name="oc" value="oc" />
+			<property name="od" value="od" />
+		</include>
+		where 1 = 1
+	</select>
+
+	<select id="selectOrderFarmerInfoShowByDriver"
+		resultMap="BaseResultMap">
+		SELECT
+		<include refid="baseCol">
+			<property name="of" value="of" />
+			<property name="pre" value="" />
+			<property name="og" value="og" />
+			<property name="owt" value="owt" />
+			<property name="pre_o" value="" />
+			<property name="oc" value="oc" />
+			<property name="od" value="od" />
+		</include>
+		FROM
+		<include refid="baseJoin">
+			<property name="on" value="" />
+			<property name="of" value="of" />
+			<property name="og" value="og" />
+			<property name="owt" value="owt" />
+			<property name="oom" value="oom" />
+			<property name="oc" value="oc" />
+			<property name="od" value="od" />
+		</include>
+		where of.order_id in (select od.`order_farmer_id` from `order_driver`
+		od where od.uid = #{driverUid} )
+
+	</select>
+	
+	
+	<select id="selectOrderFarmerInfoShowByUserFavorite"
+		resultMap="BaseResultMap">
+		SELECT
+		<include refid="baseCol">
+			<property name="of" value="of" />
+			<property name="pre" value="" />
+			<property name="og" value="og" />
+			<property name="owt" value="owt" />
+			<property name="pre_o" value="" />
+			<property name="oc" value="oc" />
+			<property name="od" value="od" />
+		</include>
+		FROM
+		<include refid="baseJoin">
+			<property name="on" value="" />
+			<property name="of" value="of" />
+			<property name="og" value="og" />
+			<property name="owt" value="owt" />
+			<property name="oom" value="oom" />
+			<property name="oc" value="oc" />
+			<property name="od" value="od" />
+		</include>
+		where of.order_id in (select fo.order_id from `follow_order`
+		fo where fo.uid = #{uid} )
+
+	</select>
+</mapper>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.bangnongmang.data.combo.dao.UserMachineBasicMapper">
+    <resultMap id="userMachineBasicMap" type="cn.bangnongmang.data.combo.domain.UserMachineBasic">
+        <id property="machineId" column="id" />
+        <result property="realName" column="real_name"/>
+        <result property="modelBrand" column="model_brand"/>
+        <result property="modelNumber" column="model_number"/>
+        <result property="modelId" column="machine_model_id"/>
+    </resultMap>
+    <select id="selectAllUserMachineBasic" resultMap="userMachineBasicMap">
+       SELECT
+       account_real_name_auth.real_name,
+       account.uid,
+       account.tel,
+       user_machine.id,
+       user_machine.machine_model_id,
+       user_machine_model.model_brand,
+       user_machine_model.model_number
+       FROM   account_real_name_auth , account , user_machine , user_machine_model
+       WHERE  account.uid=account_real_name_auth.uid
+       AND  account.uid=user_machine.uid
+       AND  user_machine.machine_model_id=user_machine_model.id
+    </select>
+
+
+</mapper>

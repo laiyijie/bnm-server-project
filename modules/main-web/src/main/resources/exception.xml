@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+	<exception>
+		<code>400</code>
+		<message>入参格式错误</message>
+	</exception>
+	<exception>
+		<code>800</code>
+		<message>错误</message>
+	</exception>
+	<exception>
+		<code>2020</code>
+		<message>订单已被抢走</message>
+	</exception>
+	<exception>
+		<code>6001</code>
+		<message>公钥过期</message>
+	</exception>
+	<exception>
+		<code>6002</code>
+		<message>公钥更新失败</message>
+	</exception>
+	<exception>
+		<code>6011</code>
+		<message>AES秘钥过期</message>
+	</exception>
+	<exception>
+		<code>6012</code>
+		<message>AES秘钥更新失败</message>
+	</exception>
+	<exception>
+		<code>1001</code>
+		<message>登录失败，请检查验证码是否正确</message>
+	</exception>
+	<exception>
+		<code>1002</code>
+		<message>用户未注册</message>
+	</exception>
+	<exception>
+		<code>1006</code>
+		<message>用户未注册</message>
+	</exception>
+	<exception>
+		<code>1004</code>
+		<message>您的设备已更换，请重新登录</message>
+	</exception>
+	<exception>
+		<code>1005</code>
+		<message>您的自动登录信息过期，请重新登录</message>
+	</exception>
+	<exception>
+		<code>1003</code>
+		<message>用户未登录</message>
+	</exception>
+	<exception>
+		<code>1011</code>
+		<message>获取验证码失败，请重试</message>
+	</exception>
+	<exception>
+		<code>1015</code>
+		<message>注册失败，请确定验证码是否正确</message>
+	</exception>
+	<exception>
+		<code>1016</code>
+		<message>该用户已存在，无法重复注册</message>
+	</exception>
+	<exception>
+		<code>1101</code>
+		<message>您尚未认证</message>
+	</exception>
+	<exception>
+		<code>1102</code>
+		<message>暂无接单</message>
+	</exception>
+	<exception>
+		<code>1103</code>
+		<message>您查看的订单不存在</message>
+	</exception>
+	<exception>
+		<code>1111</code>
+		<message>开始作业失败，请刷新后重试</message>
+	</exception>
+
+	<exception>
+		<code>1121</code>
+		<message>结束作业失败，请刷新后重试</message>
+	</exception>
+	<exception>
+		<code>1131</code>
+		<message>填写作业面积失败，请刷新后重试</message>
+	</exception>
+	<exception>
+		<code>1151</code>
+		<message>订单未找到</message>
+	</exception>
+	<exception>
+		<code>1152</code>
+		<message>该订单不属于你服务</message>
+	</exception>
+	<exception>
+		<code>1160</code>
+		<message>抢单场次未找到</message>
+	</exception>
+	<exception>
+		<code>1161</code>
+		<message>该订单不存在</message>
+	</exception>
+	<exception>
+		<code>1153</code>
+		<message>取消失败，请重试</message>
+	</exception>
+	<exception>
+		<code>1171</code>
+		<message>抢单失败</message>
+	</exception>
+	<exception>
+		<code>1172</code>
+		<message>订单已抢完</message>
+	</exception>
+	<exception>
+		<code>1173</code>
+		<message>订单未认证</message>
+	</exception>
+	<exception>
+		<code>1174</code>
+		<message>您已抢过一单</message>
+	</exception>
+	<exception>
+		<code>1175</code>
+		<message>用户未认证</message>
+	</exception>
+
+	<exception>
+		<code>1201</code>
+		<message>余额不足，支付失败</message>
+	</exception>
+	<exception>
+		<code>1202</code>
+		<message>订单不存在或已被删除</message>
+	</exception>
+		<exception>
+		<code>1203</code>
+		<message>已超过支付时间，请重新抢单</message>
+	</exception>
+	
+	
+	<exception>
+		<code>3000</code>
+		<message>暂无订单</message>
+	</exception>
+
+	<exception>
+		<code>3001</code>
+		<message>您不是农户无法下单</message>
+	</exception>
+
+	<exception>
+		<code>3002</code>
+		<message>地点未选择</message>
+	</exception>
+
+	<exception>
+		<code>3003</code>
+		<message>农作物未选择</message>
+	</exception>
+
+	<exception>
+		<code>3004</code>
+		<message>作业工种未选择</message>
+	</exception>
+
+	<exception>
+		<code>3005</code>
+		<message>需求农机种类未选择</message>
+	</exception>
+
+	<exception>
+		<code>3006</code>
+		<message>需求农机数量未选择</message>
+	</exception>
+
+	<exception>
+		<code>3007</code>
+		<message>农田亩数未填写</message>
+	</exception>
+
+	<exception>
+		<code>3008</code>
+		<message>作业开始时间未填写</message>
+	</exception>
+
+	<exception>
+		<code>3009</code>
+		<message>作业结束时间未填写</message>
+	</exception>
+
+	<exception>
+		<code>3010</code>
+		<message>邀请好友数量和需求农机数量需一致</message>
+	</exception>
+
+	<exception>
+		<code>3011</code>
+		<message>这个地址不属于你</message>
+	</exception>
+
+	<exception>
+		<code>3012</code>
+		<message>至少需要60亩</message>
+	</exception>
+
+	<exception>
+		<code>3013</code>
+		<message>请至少提前两天下单</message>
+	</exception>
+
+	<exception>
+		<code>3014</code>
+		<message>至少需要两天作业时间</message>
+	</exception>
+
+	<exception>
+		<code>3015</code>
+		<message>填写农机数量过多，请如实填写</message>
+	</exception>
+
+	<exception>
+		<code>3016</code>
+		<message>农户订单创建失败</message>
+	</exception>
+
+	<exception>
+		<code>3017</code>
+		<message>订单经纬度存储失败</message>
+	</exception>
+
+	<exception>
+		<code>3018</code>
+		<message>尚未选择需要查看的订单号</message>
+	</exception>
+
+	<exception>
+		<code>3019</code>
+		<message>这个订单不属于您</message>
+	</exception>
+	
+	<exception>
+		<code>3020</code>
+		<message>订单状态错误，当前订单不可执行此操作</message>
+	</exception>
+	
+	<exception>
+		<code>3021</code>
+		<message>您选择的比例不对</message>
+	</exception>
+	
+	<exception>
+		<code>3022</code>
+		<message>请重新选择预付比例</message>
+	</exception>
+	
+	<exception>
+		<code>3023</code>
+		<message>创建子订单失败</message>
+	</exception>
+	
+	<exception>
+		<code>3024</code>
+		<message>农户预付款操作失败</message>
+	</exception>
+	
+	<exception>
+		<code>3025</code>
+		<message>余额不足</message>
+	</exception>
+	
+	<exception>
+		<code>3026</code>
+		<message>农户预付款资金冻结操作失败</message>
+	</exception>
+	
+	<exception>
+		<code>3027</code>
+		<message>确认农机手完成作业面积失败，请刷新重试</message>
+	</exception>
+	
+	<exception>
+		<code>3028</code>
+		<message>状态错误，当前订单尚未设置今日作业亩数</message>
+	</exception>
+	
+	<exception>
+		<code>3029</code>
+		<message>亩数未设定或已经确认</message>
+	</exception>
+	
+	<exception>
+		<code>3030</code>
+		<message>亩数可能有变化，请您刷新后重新确认</message>
+	</exception>
+	
+	<exception>
+		<code>3031</code>
+		<message>状态错误，现在不能结束该订单</message>
+	</exception>
+	
+	<exception>
+		<code>3032</code>
+		<message>取消订单失败，请重试</message>
+	</exception>
+	
+	<exception>
+		<code>3033</code>
+		<message>退款操作失败</message>
+	</exception>
+	
+	<exception>
+		<code>3034</code>
+		<message>所选地址的经纬度不存在，请重新选择一个地址</message>
+	</exception>
+
+	<exception>
+		<code>81001</code>
+		<message>用户未绑定微信</message>
+	</exception>
+	<exception>
+		<code>82001</code>
+		<message>您尚未认证农户无法提现</message>
+	</exception>
+	<exception>
+		<code>82002</code>
+		<message>您尚未认证机手无法提现</message>
+	</exception>
+	<exception>
+		<code>82003</code>
+		<message>您尚未绑定微信号，无法提现到微信</message>
+	</exception>
+	<exception>
+		<code>82004</code>
+		<message>余额不足，无法提现</message>
+	</exception>
+	<exception>
+		<code>6000</code>
+		<message>testing</message>
+	</exception>
+
+
+
+
+</config>

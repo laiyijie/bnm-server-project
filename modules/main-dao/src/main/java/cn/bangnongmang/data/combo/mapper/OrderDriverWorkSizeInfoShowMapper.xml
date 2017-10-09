@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="cn.bangnongmang.data.combo.dao.OrderDriverWorkSizeInfoShowMapper">
+	<resultMap
+		type="cn.bangnongmang.data.combo.domain.OrderDriverWorkSizeInfoShow"
+		id="BaseResultMap">
+		<id column="odwsis_id" jdbcType="BIGINT" property="id" />
+		<association property="orderDriverWorkSize"
+			resultMap="cn.bangnongmang.data.dao.OrderDriverWorkSizeMapper.BaseResultMap"
+			columnPrefix="odws_" />
+		<association property="userBasicInfoShow"
+			resultMap="cn.bangnongmang.data.combo.dao.UserBasicInfoShowMapper.BaseResultMap"
+			columnPrefix="ubis_" />
+
+	</resultMap>
+
+	<sql id="baseCol">
+
+		${odws}.id as odwsis_id,
+		${odws}.id as ${odws}_id,
+		${odws}.order_farmer_work_size_id as
+		${odws}_order_farmer_work_size_id,
+		${odws}.uid as
+		${odws}_uid,
+		${odws}.size as ${odws}_size,
+		<include
+			refid="cn.bangnongmang.data.combo.dao.UserBasicInfoShowMapper.baseCol">
+			<property name="a" value="ubis_a" />
+			<property name="ag" value="ubis_ag" />
+			<property name="arna" value="ubis_arna" />
+			<property name="su" value="ubis_su" />
+			<property name="ap" value="ubis_ap" />
+			<property name="pre" value="ubis_" />
+		</include>
+
+	</sql>
+
+	<sql id="baseJoin">
+		`order_driver_work_size` odws left outer join
+
+		<include
+			refid="cn.bangnongmang.data.combo.dao.UserBasicInfoShowMapper.baseJoin">
+			<property name="a" value="ubis_a" />
+			<property name="ag" value="ubis_ag" />
+			<property name="arna" value="ubis_arna" />
+			<property name="su" value="ubis_su" />
+			<property name="ap" value="ubis_ap" />
+			<property name="a_on" value="on ubis_a.uid=odws.uid" />
+		</include>
+
+	</sql>
+
+	<select id="getOrderDriverWorkSizeInfoShowListByOrderFarmerId"
+		parameterType="java.lang.String" resultMap="BaseResultMap">
+		SELECT
+		<include refid="baseCol">
+			<property name="odws" value="odws" />
+		</include>
+		FROM
+		<include refid="baseJoin">
+
+		</include>
+		where
+		odws.order_farmer_work_size_id in (select id from
+		order_farmer_work_size where order_farmer_id =
+		#{orderId,jdbcType=VARCHAR} )
+	</select>
+
+
+</mapper>

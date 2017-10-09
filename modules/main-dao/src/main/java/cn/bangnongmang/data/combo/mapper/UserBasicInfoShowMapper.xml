@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.bangnongmang.data.combo.dao.UserBasicInfoShowMapper">
+	<resultMap type="cn.bangnongmang.data.combo.domain.UserBasicInfoShow"
+		id="BaseResultMap">
+		<id column="ubis_id" jdbcType="INTEGER" property="id" />
+		<association property="account"
+			resultMap="cn.bangnongmang.data.dao.AccountMapper.BaseResultMap"
+			columnPrefix="a_" />
+		<association property="accountGeo"
+			resultMap="cn.bangnongmang.data.dao.AccountGeoMapper.BaseResultMap"
+			columnPrefix="ag_" />
+		<association property="accountRealNameAuth"
+			resultMap="cn.bangnongmang.data.dao.AccountRealNameAuthMapper.BaseResultMap"
+			columnPrefix="arna_" />
+		<association property="starUser"
+			resultMap="cn.bangnongmang.data.dao.StarUserMapper.BaseResultMap"
+			columnPrefix="su_" />
+		<collection property="accountPortrait"
+			resultMap="cn.bangnongmang.data.dao.AccountPortraitMapper.BaseResultMap"
+			columnPrefix="ap_" />
+	</resultMap>
+
+	<sql id="baseCol">
+		${a}.uid as ${pre}ubis_id,
+		${a}.uid as
+		${a}_uid,
+		${a}.username
+		as
+		${a}_username,
+		${a}.password as
+		${a}_password,
+		${a}.salt_string as
+		${a}_salt_string,
+		${a}.temp_password
+		as ${a}_temp_password,
+		${a}.create_time as ${a}_create_time,
+		${a}.state
+		as ${a}_state,
+		${a}.temp_available_time as ${a}_temp_available_time,
+		${a}.onetime_temp_password as ${a}_onetime_temp_password,
+		${a}.onetime_available_time as ${a}_onetime_available_time,
+		${a}.level
+		as
+		${a}_level,
+		${a}.name as ${a}_name,
+		${a}.wechat_union_id as
+		${a}_wechat_union_id,
+		${a}.wechat_open_id as ${a}_wechat_open_id,
+		${a}.nickname as ${a}_nickname,
+		${a}.idcard_id as ${a}_idcard_id,
+		${a}.tel as ${a}_tel,
+		${a}.driver_leader as ${a}_driver_leader,
+		${a}.wechat_info as
+		${a}_wechat_info,
+		${ag}.uid as ${ag}_uid,
+		${ag}.latitude as ${ag}_latitude,
+		${ag}.longitude as ${ag}_longitude,
+		${ag}.province as ${ag}_province,
+		${ag}.city as
+		${ag}_city,
+		${ag}.district as ${ag}_district,
+		${ag}.street
+		as ${ag}_street,
+		${ag}.street_number as ${ag}_street_number,
+		${ag}.address as
+		${ag}_address,
+		${ag}.update_time as ${ag}_update_time,
+		${arna}.uid
+		as ${arna}_uid,
+		${arna}.update_time as
+		${arna}_update_time,
+		${arna}.state as ${arna}_state,
+		${arna}.id_card_number as
+		${arna}_id_card_number,
+		${arna}.real_name as
+		${arna}_real_name,
+		${arna}.failed_reason as ${arna}_failed_reason,
+		${arna}.down_side as
+		${arna}_down_side,
+		${arna}.up_side as
+		${arna}_up_side,
+		${su}.uid as
+		${su}_uid,
+		${su}.captain_star as
+		${su}_captain_star,
+		${su}.member_star as ${su}_member_star,
+		${su}.captain_evaluations as
+		${su}_captain_evaluations,
+		${su}.member_evaluations as
+		${su}_member_evaluations,
+		${ap}.uid as
+		${ap}_uid,
+		${ap}.portrait_url as
+		${ap}_portrait_url
+	</sql>
+
+	<sql id="baseJoin">
+		`account` ${a} ${a_on} left outer join `account_geo` ${ag}
+		on
+		${ag}.uid
+		=
+		${a}.uid left
+		outer join `account_real_name_auth`
+		${arna}
+		on
+		${arna}.uid = ${a}.uid
+		left outer join `star_user`
+		${su}
+		on
+		${su}.uid = ${a}.uid
+		left outer join
+		portrait_info
+		${ap}
+		on
+		${ap}.uid = ${a}.uid
+	</sql>
+
+	<select id="selectByUserName" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		SELECT
+		<include refid="baseCol">
+			<property name="a" value="a" />
+			<property name="ag" value="ag" />
+			<property name="arna" value="arna" />
+			<property name="su" value="su" />
+			<property name="ap" value="ap" />
+			<property name="pre" value="" />
+		</include>
+		FROM
+		<include refid="baseJoin">
+			<property name="a" value="a" />
+			<property name="ag" value="ag" />
+			<property name="arna" value="arna" />
+			<property name="su" value="su" />
+			<property name="ap" value="ap" />
+			<property name="a_on" value="" />
+		</include>
+		where
+		a.username =
+		#{username,jdbcType=VARCHAR}
+	</select>
+	<select id="selectByUid"
+		resultMap="BaseResultMap">
+		SELECT
+		<include refid="baseCol">
+			<property name="a" value="a" />
+			<property name="ag" value="ag" />
+			<property name="arna" value="arna" />
+			<property name="su" value="su" />
+			<property name="ap" value="ap" />
+			<property name="pre" value="" />
+		</include>
+		FROM
+		<include refid="baseJoin">
+			<property name="a" value="a" />
+			<property name="ag" value="ag" />
+			<property name="arna" value="arna" />
+			<property name="su" value="su" />
+			<property name="ap" value="ap" />
+			<property name="a_on" value="" />
+		</include>
+		where
+		a.uid =
+		#{uid}
+	</select>
+	<select id="selectRealNameAuthListByLevel" parameterType="map"
+		resultMap="BaseResultMap">
+		SELECT
+		<include refid="baseCol">
+			<property name="a" value="a" />
+			<property name="ag" value="ag" />
+			<property name="arna" value="arna" />
+			<property name="su" value="su" />
+			<property name="ap" value="ap" />
+			<property name="pre" value="" />
+		</include>
+		FROM
+		<include refid="baseJoin">
+			<property name="a" value="a" />
+			<property name="ag" value="ag" />
+			<property name="arna" value="arna" />
+			<property name="su" value="su" />
+			<property name="ap" value="ap" />
+			<property name="a_on" value="" />
+		</include>
+		where
+		a.level BETWEEN #{lowLevel,jdbcType=INTEGER} and #{highLevel,jdbcType=INTEGER} AND
+		arna.state = 400 ORDER BY arna.update_time
+		desc
+	</select>
+
+	<select id="selectRealNameAuthListByType" parameterType="java.lang.Integer"
+		resultMap="BaseResultMap">
+		SELECT
+		<include refid="baseCol">
+			<property name="a" value="a" />
+			<property name="ag" value="ag" />
+			<property name="arna" value="arna" />
+			<property name="su" value="su" />
+			<property name="ap" value="ap" />
+			<property name="pre" value="" />
+		</include>
+		FROM
+		<include refid="baseJoin">
+			<property name="a" value="a" />
+			<property name="ag" value="ag" />
+			<property name="arna" value="arna" />
+			<property name="su" value="su" />
+			<property name="ap" value="ap" />
+			<property name="a_on" value="" />
+		</include>
+		<if test="_parameter != null">
+			where
+			arna.state =
+			#{type,jdbcType=INTEGER}
+		</if>
+		<if test="_parameter == null">
+			where
+			arna.uid is NOT NULL
+
+		</if>
+		ORDER BY arna.update_time
+		desc
+	</select>
+
+	<select id="searchRealNameAuthListByNameOrPhone" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		SELECT
+		<include refid="baseCol">
+			<property name="a" value="a" />
+			<property name="ag" value="ag" />
+			<property name="arna" value="arna" />
+			<property name="su" value="su" />
+			<property name="ap" value="ap" />
+			<property name="pre" value="" />
+		</include>
+		FROM
+		<include refid="baseJoin">
+			<property name="a" value="a" />
+			<property name="ag" value="ag" />
+			<property name="arna" value="arna" />
+			<property name="su" value="su" />
+			<property name="ap" value="ap" />
+			<property name="a_on" value="" />
+		</include>
+		where
+		a.username =
+		#{key,jdbcType=VARCHAR} or arna.real_name =
+		#{key,jdbcType=VARCHAR} ORDER BY arna.update_time desc
+	</select>
+
+	<select id="searchRealNameAuthListByPhoneList"
+			resultMap="BaseResultMap">
+		SELECT
+		<include refid="baseCol">
+			<property name="a" value="a" />
+			<property name="ag" value="ag" />
+			<property name="arna" value="arna" />
+			<property name="su" value="su" />
+			<property name="ap" value="ap" />
+			<property name="pre" value="" />
+		</include>
+		FROM
+		<include refid="baseJoin">
+			<property name="a" value="a" />
+			<property name="ag" value="ag" />
+			<property name="arna" value="arna" />
+			<property name="su" value="su" />
+			<property name="ap" value="ap" />
+			<property name="a_on" value="" />
+		</include>
+		where
+		a.username IN
+		<foreach item="item" index="index" collection="list"
+				 open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</select>
+
+</mapper>

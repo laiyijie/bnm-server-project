@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.3.xsd">
+
+    <!-- DispatcherServlet Context: defines this servlet's request-processing
+        infrastructure -->
+    <context:property-placeholder
+            location="file:#{ systemEnvironment['BNM_CONFIG'] }/server_config.properties"/>
+    <bean
+            class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter"
+            p:responseBodyAdvice-ref="responseAdvice">
+        <property name="messageConverters">
+            <util:list id="beanList">
+                <ref bean="jsonHttpMessageConverter"/>
+                <ref bean="stringHttpMessageConverter"/>
+            </util:list>
+        </property>
+    </bean>
+
+    <bean id="stringHttpMessageConverter"
+          class="org.springframework.http.converter.StringHttpMessageConverter" p:defaultCharset="UTF-8" />
+
+    <bean id="jsonHttpMessageConverter"
+          class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter" p:defaultCharset="UTF-8" />
+
+    <!-- Enables the Spring MVC @Controller programming model -->
+    <mvc:annotation-driven/>
+
+    <!-- Handles HTTP GET requests for /resources/** by efficiently serving
+        up static resources in the ${webappRoot}/resources directory -->
+    <mvc:resources mapping="/resources/**" location="/resources/"/>
+
+    <!-- Resolves views selected for rendering by @Controllers to .jsp resources
+        in the /WEB-INF/views directory -->
+    <bean
+            class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/views/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+
+    <context:component-scan base-package="cn.bangnongmang.server">
+        <context:exclude-filter type="annotation"
+                                expression="org.springframework.stereotype.Service"/>
+    </context:component-scan>
+
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="/**"/> <!-- 管理登录拦截 -->
+
+            <!-- 排除微信公众号的登录 -->
+            <mvc:exclude-mapping path="/wx/account/wechatEnter"/>
+            <mvc:exclude-mapping path="/wx/account/inviteEnter"/>
+            <mvc:exclude-mapping path="/wx/account/getVerifyCode"/>
+            <mvc:exclude-mapping path="/wx/account/register"/>
+            <mvc:exclude-mapping path="/wx/account/getLoginVerifyCode"/>
+            <mvc:exclude-mapping path="/wx/account/tologin"/>
+            <!-- 排除微信的info路径 -->
+            <mvc:exclude-mapping path="/wx/info/**"/>
+            <mvc:exclude-mapping path="/wx/game/**"/>
+            <!-- 排除秘钥交换和 home 路径 -->
+            <mvc:exclude-mapping path="/tunnel/*"/>
+            <mvc:exclude-mapping path="/home/*"/>
+            <!-- 排除安卓登录和注册相关url -->
+            <mvc:exclude-mapping path="/account/userNotLogin"/>
+            <mvc:exclude-mapping path="/account/getLoginText"/>
+            <mvc:exclude-mapping path="/account/userLogin"/>
+            <mvc:exclude-mapping path="/account/userRegister"/>
+            <mvc:exclude-mapping path="/account/userAutoLogin"/>
+            <mvc:exclude-mapping path="/account/getMachineModelInfo"/>
+
+            <!--<mvc:exclude-mapping path="/api/**"/>-->
+            <!-- 排除通用info接口 -->
+            <mvc:exclude-mapping path="/info/**"/>
+            <mvc:exclude-mapping path="/app/info/**"/>
+            <!-- 排除匿名用户可以使用的接口 -->
+            <mvc:exclude-mapping path="/wx/order/getGrabList"/>
+            <mvc:exclude-mapping path="/wx/order/getGrabSeason"/>
+
+            <mvc:exclude-mapping path="/resources/**"/>
+            <mvc:exclude-mapping path="/api/*/auths/**"/>
+            <bean class="cn.bangnongmang.server.io.interceptor.LoginInterceptor"/>
+        </mvc:interceptor>
+        <mvc:interceptor>
+            <mvc:mapping path="/payment/**"/>
+            <mvc:mapping path="/card/**"/>
+
+            <mvc:exclude-mapping path="/card/get*"/>
+            <mvc:exclude-mapping path="/payment/get*"/>
+
+            <bean class="cn.bangnongmang.server.io.interceptor.RealNameAuthInterceptor"/>
+        </mvc:interceptor>
+        <mvc:interceptor>
+            <mvc:mapping path="/app/order/**"/> <!-- 管理认证用户才可以操作的权限 -->
+            <mvc:mapping path="/friends/**"/>
+            <mvc:mapping path="/team/**"/>
+
+            <mvc:exclude-mapping path="/team/get*"/>
+            <mvc:exclude-mapping path="/team/is*"/>
+            <mvc:exclude-mapping path="/friends/get*"/>
+            <mvc:exclude-mapping path="/app/order/check*"/>
+            <mvc:exclude-mapping path="/app/order/get*"/>
+            <bean class="cn.bangnongmang.server.io.interceptor.AuthDriverInterceptor"/>
+        </mvc:interceptor>
+    </mvc:interceptors>
+
+    <aop:aspectj-autoproxy proxy-target-class="true"/>
+
+</beans>

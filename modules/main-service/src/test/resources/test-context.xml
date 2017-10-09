@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.3.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+
+
+    <context:component-scan base-package="cn.bangnongmang.service">
+        <context:exclude-filter type="annotation"
+                                expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+    <context:property-placeholder
+            location="file:#{systemEnvironment['BNM_CONFIG']}/config.properties"/>
+
+    <bean id="mysqlDataSource" class="org.apache.commons.dbcp.BasicDataSource"
+          destroy-method="close" p:driverClassName="${jdbc.driverClass}" p:url="${jdbc.url}"
+          p:username="${jdbc.username}" p:password="${jdbc.password}"
+          p:testWhileIdle="true" p:testOnBorrow="false" p:validationQuery="SELECT 1"
+          p:timeBetweenEvictionRunsMillis="7200000" p:numTestsPerEvictionRun="50"/>
+
+    <bean id="flyway" class="org.flywaydb.core.Flyway" init-method="migrate"
+          p:dataSource-ref="mysqlDataSource"
+          p:locations="classpath:db_bnm_main/migration"/>
+
+    <bean id="transactionManager"
+          class="org.springframework.jdbc.datasource.DataSourceTransactionManager"
+          p:dataSource-ref="mysqlDataSource"/>
+
+    <tx:annotation-driven proxy-target-class="true"/>
+
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean"
+          p:dataSource-ref="mysqlDataSource">
+        <property name="mapperLocations">
+            <list>
+                <value>classpath:cn/bangnongmang/data/mapper/*.xml</value>
+                <value>classpath:cn/bangnongmang/data/combo/mapper/*.xml</value>
+            </list>
+        </property>
+        <property name="plugins">
+            <array>
+                <bean class="com.github.pagehelper.PageInterceptor">
+                    <property name="properties">
+                        <!--使用下面的方式配置参数，一行配置一个 -->
+                        <value>
+                            helperDialect=mysql
+                        </value>
+                    </property>
+                </bean>
+            </array>
+        </property>
+    </bean>
+
+
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer"
+          p:sqlSessionFactoryBeanName="sqlSessionFactory" p:basePackage="cn.bangnongmang.data"/>
+
+
+    <bean id="rxBankAuth" class="cn.bangnongmang.service.outerservice.impl.RxBankAuth"
+          p:selfPrivateKeyPath="file:#{systemEnvironment['BNM_CONFIG']}/merchant_pri.key"
+          p:serverPublicKeyPath="file:#{systemEnvironment['BNM_CONFIG']}/rxrc5_pub.key"
+          p:serverUrl="${rx.serverUrl}" p:funcNo="${rx.funcNo}" p:orgNo="${rx.orgNo}"
+          p:prodNo="${rx.prodNo}" p:version="${rx.version}" p:liveMode="${rx.liveMode}"/>
+    <bean id="stateCollection"
+          class="cn.bangnongmang.service.middle.order.farmer.OrderFarmerStateCollection">
+    </bean>
+
+    <bean
+            class="cn.bangnongmang.service.middle.order.farmer.OrderFarmerStateManagerFactory">
+        <constructor-arg name="collection" ref="stateCollection"></constructor-arg>
+    </bean>
+    <context:annotation-config/>
+</beans>

@@ -1,0 +1,17 @@
+{
+  "devDependencies": {
+    "@types/angular": "^1.6.16",
+    "angular": "^1.6.4"
+  },
+  "name": "bnm-manager-api",
+  "main": "index.js",
+  "dependencies": {
+    "angular": "^1.6.4"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+	<Properties>
+		<Property name="businessMarker">business</Property>
+		<Property name="geoMarker">geo_info</Property>
+		<Property name="accessMarker">access</Property>
+		
+		<Property name="logFilePath">${catalina.home}/logs/serverLog/</Property>
+	</Properties>
+	<Appenders>
+
+		<!-- 控制台，用于调测使用 -->
+		<Console name="console" target="SYSTEM_OUT">
+			<PatternLayout pattern="[%p][%d{MMdd HH:mm:ss SSS}] - %m%n" />
+			<Charset>UTF-8</Charset>
+		</Console>
+		<!-- 文件，用于调测使用 -->
+		<RollingFile name="fileAppender" fileName="${logFilePath}debug/log.txt"
+			filePattern="${logFilePath}debug/log-%d{MM-dd-yyyy}.log.gz"
+			ignoreExceptions="false">
+			<PatternLayout>
+				<Pattern>[%d{MMdd HH:mm:ss SSS}] - %m%n</Pattern>
+				<Charset>UTF-8</Charset>
+			</PatternLayout>
+			<TimeBasedTriggeringPolicy />
+		</RollingFile>
+
+
+		<!-- 告警及其以上的错误记录，用于记录系统出bug的日志，便于查错 -->
+		<RollingFile name="higherThanWarningFileAppender"
+			fileName="${logFilePath}error/log.txt" filePattern="${logFilePath}error/log-%d{MM-dd-yyyy-ss}.log.gz"
+			ignoreExceptions="false">
+			<PatternLayout>
+				<Pattern>[%d{MMdd HH:mm:ss SSS} %-5p] [%t] %c{3} - %m%n</Pattern>
+				<Charset>UTF-8</Charset>
+			</PatternLayout>
+			<SizeBasedTriggeringPolicy size="25 MB" />
+		</RollingFile>
+
+		<!-- 业务日志，记录业务事件，用于业务打点 -->
+		<RollingFile name="businessFileAppender" fileName="${logFilePath}business/log.txt"
+			filePattern="${logFilePath}business/log-%d{MM-dd-yyyy}.log.gz"
+			ignoreExceptions="false">
+			<PatternLayout>
+				<Pattern>[%d{MMdd HH:mm:ss SSS}] %m%n</Pattern>
+				<Charset>UTF-8</Charset>
+			</PatternLayout>
+			<TimeBasedTriggeringPolicy />
+		</RollingFile>
+
+		<!-- Access日志，记录请求事件用于记录请求 -->
+		<RollingFile name="accessFileAppender" fileName="${logFilePath}access/log.txt"
+			filePattern="${logFilePath}business/log-%d{MM-dd-yyyy}.log.gz"
+			ignoreExceptions="false">
+			<PatternLayout>
+				<Pattern>[%d{MMdd HH:mm:ss SSS}] %m%n</Pattern>
+				<Charset>UTF-8</Charset>
+			</PatternLayout>
+			<TimeBasedTriggeringPolicy />
+		</RollingFile>
+
+		<!-- 地理位置打点，会有比较大的日志量，需要在其他的appender里面额外排除 -->
+		<RollingFile name="geoInfoFileAppender" fileName="${logFilePath}geo/log.txt"
+			filePattern="${logFilePath}geo/log-%d{MM-dd-yyyy-ss}.log.gz"
+			ignoreExceptions="false">
+			<PatternLayout>
+				<Pattern>%m%n</Pattern>
+				<Charset>UTF-8</Charset>
+			</PatternLayout>
+			<SizeBasedTriggeringPolicy size="1024 MB" />
+		</RollingFile>
+	</Appenders>
+
+	<Loggers>
+
+		<!-- 所有当前系统的日志由此logger进行拦截并不再向下传递，非开发模式中每种Appender必须要有指定的marker -->
+		<Logger name="cn.bangnongmang.server" additivity="false" level="info">
+
+			<AppenderRef ref="geoInfoFileAppender">
+				<MarkerFilter marker="${geoMarker}" onMatch="ACCEPT"
+					onMismatch="DENY" />
+			</AppenderRef>
+			<AppenderRef ref="higherThanWarningFileAppender">
+				<ThresholdFilter level="WARN" onMatch="ACCEPT"
+					onMismatch="DENY" />
+			</AppenderRef>
+			<AppenderRef ref="businessFileAppender">
+				<MarkerFilter marker="${businessMarker}" onMatch="ACCEPT"
+					onMismatch="DENY" />
+			</AppenderRef>
+			<AppenderRef ref="accessFileAppender">
+				<MarkerFilter marker="${accessMarker}" onMatch="ACCEPT"
+					onMismatch="DENY" />
+			</AppenderRef>
+
+			<!-- 调测使用 -->
+			<AppenderRef ref="console" />
+			<AppenderRef ref="fileAppender" />
+		</Logger>
+
+		<!-- 其他第三方额外的log输出 -->
+		<Root level="info">
+			<AppenderRef ref="console" />
+		</Root>
+	</Loggers>
+</Configuration>

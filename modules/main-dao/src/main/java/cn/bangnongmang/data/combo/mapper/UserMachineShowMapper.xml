@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.bangnongmang.data.combo.dao.UserMachineShowMapper">
+	<resultMap type="cn.bangnongmang.data.combo.domain.UserMachineShow"
+		id="BaseResultMap">
+		<id column="ums_id" jdbcType="BIGINT" property="id" />
+		<association property="userMachine"
+			resultMap="cn.bangnongmang.data.dao.UserMachineMapper.BaseResultMap"
+			columnPrefix="um_" />
+		<association property="userMachineType"
+			resultMap="cn.bangnongmang.data.dao.UserMachineTypeMapper.BaseResultMap"
+			columnPrefix="umt_" />
+		<association property="userMachineModel"
+			resultMap="cn.bangnongmang.data.dao.UserMachineModelMapper.BaseResultMap"
+			columnPrefix="umm_" />
+		<collection property="userMachineAuthImages" javaType="ArrayList"
+			resultMap="cn.bangnongmang.data.dao.UserMachineAuthImageMapper.BaseResultMap"
+			columnPrefix="umai_" />
+		<collection property="options"
+			resultMap="cn.bangnongmang.data.combo.dao.OrderFarmerInfoShowMapper.OptionResultMapper"
+			columnPrefix="o_" />
+		<collection property="userOptions"
+					resultMap="cn.bangnongmang.data.combo.dao.OrderFarmerInfoShowMapper.OptionResultMapper"
+					columnPrefix="uo_" />
+		<collection property="typeOptionClusters"
+					resultMap="cn.bangnongmang.data.dao.OptionClusterMapper.BaseResultMap"
+					columnPrefix="toc_" />
+		<collection property="optionWorkingTypes" javaType="ArrayList"
+			resultMap="cn.bangnongmang.data.dao.OptionWorkingTypeMapper.BaseResultMap"
+			columnPrefix="owt_" />
+	</resultMap>
+
+	<sql id="baseCol">
+		um.id as ums_id,
+		um.id as um_id,um.uid as
+		um_uid,um.machine_model_id as um_machine_model_id,um.buy_time as
+		um_buy_time,um.state as um_state,um.failed_reason as um_failed_reason,
+		um.width  as um_width,
+		um.integrity as um_integrity,
+		umm.id as umm_id, umm.user_machine_type_id as
+		umm_user_machine_type_id,umm.model_brand as
+		umm_model_brand,umm.model_number as umm_model_number,
+		umm.model_width
+		as umm_model_width,
+		umm.model_power as umm_model_power,
+		umm.special_info as umm_special_info,
+		umm.more_info_url as
+		umm_more_info_url,
+		umm.width as
+		umm_width,
+		umm.cut_num as
+		umm_cut_num,
+		umai.id as umai_id,
+		umai.user_machine_id as
+		umai_user_machine_id,
+		umai.type as umai_type,
+		umai.url as umai_url,
+		umai.update_time as umai_update_time,
+		umt.id as umt_id,
+		umt.type_name as
+		umt_type_name,
+		umt.descripetion as umt_descripetion,
+
+		oc.id
+		as o_ocdi_id,
+		oc.id as o_oc_id,
+		oc.cluster_name as
+		o_oc_cluster_name,
+		oc.description as
+		o_oc_description,
+
+		od.id as o_od_id,
+		od.option_name as o_od_option_name,
+		od.cluster_id as
+		o_od_cluster_id,
+		od.description as o_od_description,
+
+		uoc.id
+		as uo_ocdi_id,
+		uoc.id as uo_oc_id,
+		uoc.cluster_name as
+		uo_oc_cluster_name,
+		uoc.description as
+		uo_oc_description,
+
+		uod.id as uo_od_id,
+		uod.option_name as uo_od_option_name,
+		uod.cluster_id as
+		uo_od_cluster_id,
+		uod.description as uo_od_description,
+
+		toc.id as toc_id,
+		toc.cluster_name as
+		toc_cluster_name,
+		toc.description as
+		toc_description,
+
+		owt.id as owt_id,
+		owt.crop_type as owt_crop_type,
+		owt.working_type as owt_working_type
+
+
+	</sql>
+
+	<sql id="baseJoin">
+		`user_machine` um left outer join `user_machine_model` umm
+		on
+		um.machine_model_id =
+		umm.id left outer join `user_machine_type` umt
+		on
+		umm.user_machine_type_id = umt.id left outer join
+		user_machine_auth_image umai on umai.user_machine_id = um.id
+
+		left outer
+		join
+		`option_machine_model_mapping` ommm
+		on ommm.model_id =
+		umm.id
+
+		left
+		outer join `option_detail` od on
+		od.id = ommm.option_id
+		left outer join
+		`option_cluster` oc on oc.id = od.cluster_id
+		left outer join
+		`option_working_type_machine_model_mapping` owtmmm on
+		owtmmm.machine_model_id = umm.id
+
+		LEFT OUTER JOIN
+		`user_machine_option_detail_mapping` umodm ON
+		umodm.user_machine_id = um.id
+		LEFT OUTER JOIN
+		`option_detail` uod on uod.id = umodm.option_detail_id
+		LEFT OUTER JOIN
+		`option_cluster` uoc ON  uoc.id = uod.cluster_id
+
+		LEFT OUTER JOIN
+		`machine_type_option_cluster_mapping` mtocm ON
+		mtocm.machine_type_id = umt.id
+
+		LEFT  OUTER JOIN
+		`option_cluster` toc ON toc.id = mtocm.option_cluster_id
+
+		left outer join `option_working_type`
+		owt on owt.id =
+		owtmmm.option_working_type_id
+
+	</sql>
+
+	<select id="selectByUid"
+		resultMap="BaseResultMap">
+		SELECT
+		<include refid="baseCol"></include>
+		FROM
+		<include refid="baseJoin"></include>
+		where
+		um.uid = #{uid}
+	</select>
+
+
+	<select id="selectByUserMachineId" parameterType="java.lang.Long"
+		resultMap="BaseResultMap">
+		SELECT
+		<include refid="baseCol"></include>
+		FROM
+		<include refid="baseJoin"></include>
+		<if test="_parameter != null">
+		where
+		um.id = #{id,jdbcType=BIGINT}
+		</if>
+	</select>
+</mapper>

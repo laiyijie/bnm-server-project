@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration PUBLIC
+  "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+  "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+<generatorConfiguration>
+
+	<classPathEntry
+		location="C:\Users\admin\.m2\repository\mysql\mysql-connector-java\5.1.41\mysql-connector-java-5.1.41.jar" />
+
+	<context id="context1">
+		<plugin type="org.mybatis.generator.plugins.RenameExampleClassPlugin">
+			<property name="searchString" value="Example$" />
+			<property name="replaceString" value="Criteria" />
+		</plugin>
+		<commentGenerator>
+			<!-- 是否去除自动生成的注释 true：是 ： false:否 -->
+			<property name="suppressAllComments" value="true" />
+		</commentGenerator>
+		<jdbcConnection connectionURL="jdbc:mysql://127.0.0.1:3306/bnm_manager"
+			driverClass="com.mysql.jdbc.Driver" password="laiyijie"
+			userId="root" />
+		<javaModelGenerator targetPackage="cn.bangnongmang.admin.data.domain"
+			targetProject="src/main/java" />
+		<sqlMapGenerator targetPackage="cn.bangnongmang.admin.data.mapper"
+			targetProject="src/main/java" />
+		<javaClientGenerator targetPackage="cn.bangnongmang.admin.data.dao"
+			targetProject="src/main/java" type="XMLMAPPER" />
+
+		<table schema="bnm_manager" tableName="admin_account"
+			domainObjectName="AdminAccount">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+
+		<table schema="bnm_manager" tableName="offline_charge"
+			domainObjectName="OfflineCharge">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+
+		<table schema="bnm_manager" tableName="area_dict"
+			domainObjectName="AreaDict">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+
+		<table schema="bnm_manager" tableName="account_area"
+			domainObjectName="AccountArea">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+  <!-- 权限控制  -->
+		<table schema="bnm_manager" tableName="role"
+			domainObjectName="Role">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+		<table schema="bnm_manager" tableName="user_role"
+			domainObjectName="UserRole">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+		<table schema="bnm_manager" tableName="resc"
+			domainObjectName="Resc">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+		<table schema="bnm_manager" tableName="resc_role"
+			domainObjectName="RescRole">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+		
+	</context>
+</generatorConfiguration>

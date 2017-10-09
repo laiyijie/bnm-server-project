@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.bangnongmang.data.combo.dao.TeamInfoShowMapper">
+
+	<resultMap type="cn.bangnongmang.data.combo.domain.TeamJoinRequsterInfo"
+		id="TeamJoinRequsterInfoResultMapper">
+
+		<id column="tji_id" jdbcType="BIGINT" property="id" />
+
+		<association property="userBasicInfoShow"
+			resultMap="cn.bangnongmang.data.combo.dao.UserBasicInfoShowMapper.BaseResultMap"
+			columnPrefix="ubis_" />
+		<association property="teamJoinRequest"
+			resultMap="cn.bangnongmang.data.dao.TeamJoinRequestMapper.BaseResultMap"
+			columnPrefix="tjr_" />
+	</resultMap>
+
+	<resultMap type="cn.bangnongmang.data.combo.domain.TeamInfoShow"
+		id="BaseResultMap">
+		<id column="tis_id" jdbcType="BIGINT" property="id" />
+		<association property="teamInOrder"
+			resultMap="cn.bangnongmang.data.dao.TeamInOrderMapper.BaseResultMap"
+			columnPrefix="tio_" />
+		<association property="leader"
+			resultMap="cn.bangnongmang.data.combo.dao.UserBasicInfoShowMapper.BaseResultMap"
+			columnPrefix="l_" />
+		<association property="orderFarmerInfoShow"
+			resultMap="cn.bangnongmang.data.combo.dao.OrderFarmerInfoShowMapper.BaseResultMap"
+			columnPrefix="ofis_" />
+
+		<collection property="requesters" resultMap="TeamJoinRequsterInfoResultMapper"
+			columnPrefix="r_" />
+	</resultMap>
+
+	<sql id="baseCol">
+		tio.id as tis_id,
+		tio.id as tio_id,
+		tio.order_id as tio_order_id,
+		tio.uid as tio_uid,
+		tio.description as
+		tio_description,
+
+		<include
+			refid="cn.bangnongmang.data.combo.dao.UserBasicInfoShowMapper.baseCol">
+			<property name="a" value="l_a" />
+			<property name="ag" value="l_ag" />
+			<property name="arna" value="l_arna" />
+			<property name="su" value="l_su" />
+			<property name="ap" value="l_ap" />
+			<property name="pre" value="l_" />
+		</include>
+		,
+		tjr.id as r_tji_id,
+		tjr.id as r_tjr_id,
+		tjr.team_id as r_tjr_team_id,
+		tjr.uid as r_tjr_uid,
+		tjr.state as r_tjr_state,
+		tjr.create_time as r_tjr_create_time,
+		tjr.ps as r_tjr_ps,
+		<include
+			refid="cn.bangnongmang.data.combo.dao.UserBasicInfoShowMapper.baseCol">
+			<property name="a" value="r_ubis_a" />
+			<property name="ag" value="r_ubis_ag" />
+			<property name="arna" value="r_ubis_arna" />
+			<property name="su" value="r_ubis_su" />
+			<property name="ap" value="r_ubis_ap" />
+			<property name="pre" value="r_ubis_" />
+		</include>
+		,
+
+		<include
+			refid="cn.bangnongmang.data.combo.dao.OrderFarmerInfoShowMapper.baseCol">
+			<property name="of" value="ofis_of" />
+			<property name="pre" value="ofis_" />
+			<property name="og" value="ofis_og" />
+			<property name="owt" value="ofis_owt" />
+			<property name="oc" value="ofis_oc" />
+			<property name="pre_o" value="ofis_" />
+			<property name="od" value="ofis_od" />
+		</include>
+
+	</sql>
+
+	<sql id="baseJoin">
+
+		`team_in_order` tio left outer join
+
+		<include
+			refid="cn.bangnongmang.data.combo.dao.UserBasicInfoShowMapper.baseJoin">
+			<property name="a" value="l_a" />
+			<property name="ag" value="l_ag" />
+			<property name="arna" value="l_arna" />
+			<property name="su" value="l_su" />
+			<property name="ap" value="l_ap" />
+			<property name="a_on" value="on l_a.uid=tio.uid" />
+		</include>
+		left outer join `team_join_request` tjr on tjr.team_id = tio.id left
+		outer join
+		<include
+			refid="cn.bangnongmang.data.combo.dao.UserBasicInfoShowMapper.baseJoin">
+			<property name="a" value="r_ubis_a" />
+			<property name="ag" value="r_ubis_ag" />
+			<property name="arna" value="r_ubis_arna" />
+			<property name="su" value="r_ubis_su" />
+			<property name="ap" value="r_ubis_ap" />
+			<property name="a_on" value="on r_ubis_a.uid=tjr.uid" />
+		</include>
+
+		left outer join
+
+		<include
+			refid="cn.bangnongmang.data.combo.dao.OrderFarmerInfoShowMapper.baseJoin">
+			<property name="on" value=" on ofis_of.order_id = tio.order_id " />
+			<property name="of" value="ofis_of" />
+			<property name="og" value="ofis_og" />
+			<property name="owt" value="ofis_owt" />
+			<property name="oom" value="ofis_oom" />
+			<property name="oc" value="ofis_oc" />
+			<property name="od" value="ofis_od" />
+		</include>
+	</sql>
+
+	<select id="selectTeamInfoShowByOrderId" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		SELECT
+		<include refid="baseCol">
+		</include>
+		FROM
+		<include refid="baseJoin">
+		</include>
+		where tio.order_id = #{orderId,jdbcType=VARCHAR}
+	</select>
+
+
+	<select id="selectTeamInfoShowByRequester" 
+		resultMap="BaseResultMap">
+		SELECT
+		<include refid="baseCol">
+		</include>
+		FROM
+		<include refid="baseJoin">
+		</include>
+		where tio.order_id in ( select etio.order_id from `team_join_request`
+		etjr LEFT OUTER JOIN team_in_order etio ON etjr.team_id = etio.id
+		where etjr.uid = #{uid} )
+	</select>
+
+	<select id="selectTeamInfoShowByRequesterAndState" resultMap="BaseResultMap">
+		SELECT
+		<include refid="baseCol">
+		</include>
+		FROM
+		<include refid="baseJoin">
+		</include>
+		where tio.id in ( select etio.id from `team_join_request`
+		etjr LEFT OUTER JOIN team_in_order etio ON etjr.team_id = etio.id
+		where etjr.uid = #{uid} and
+		etjr.state=#{state} )
+	</select>
+
+	<select id="selectTeamInfoShowByLeader"
+		resultMap="BaseResultMap">
+		SELECT
+		<include refid="baseCol">
+		</include>
+		FROM
+		<include refid="baseJoin">
+		</include>
+		where tio.uid = #{leader}
+	</select>
+
+	<select id="selectTeamInfoShowByTeamId" parameterType="java.lang.Long"
+		resultMap="BaseResultMap">
+		SELECT
+		<include refid="baseCol">
+		</include>
+		FROM
+		<include refid="baseJoin">
+		</include>
+		where tio.id = #{teamId,jdbcType=BIGINT}
+	</select>
+
+</mapper>

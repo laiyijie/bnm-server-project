@@ -1,0 +1,1 @@
+java -jar swagger-codegen-cli-laiyijie.jar generate -DuseRxJava=true -i main.yaml -l java -o ./javaclient -c ./javaclientconfig.json

@@ -1,0 +1,11 @@
+target/
+doc/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+.settings/
+.idea/
+src/main/java/cn/bangnongmang/admin/service/impl/NoodTest.java
+src/test/java/cn/bangnongmang/admin/controller/AliossCred.java

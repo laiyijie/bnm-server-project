@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+
+    <!-- Root Context: defines shared resources visible to all other web components -->
+    <!-- jdbc data source -->
+
+    <context:property-placeholder
+            location="file:#{systemEnvironment['BNM_CONFIG']}/config.properties"/>
+    <bean id="flyway" class="org.flywaydb.core.Flyway" init-method="migrate"
+          p:dataSource-ref="mysqlDataSource"
+          p:locations="classpath:db_bnm_main/migration"/>
+
+    <bean id="mysqlDataSource" class="org.apache.commons.dbcp.BasicDataSource"
+          destroy-method="close" p:driverClassName="${jdbc.driverClass}" p:url="${jdbc.url}"
+          p:username="${jdbc.username}" p:password="${jdbc.password}"
+          p:testWhileIdle="true" p:testOnBorrow="false" p:validationQuery="SELECT 1"
+          p:timeBetweenEvictionRunsMillis="7200000" p:numTestsPerEvictionRun="50"/>
+
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean"
+          p:dataSource-ref="mysqlDataSource" depends-on="flyway">
+        <property name="typeHandlersPackage">
+            <value>cn.bangnongmang.data.size.typehandlers</value>
+        </property>
+        <property name="mapperLocations">
+            <list>
+                <value>classpath:cn/bangnongmang/data/mapper/*.xml</value>
+                <value>classpath:cn/bangnongmang/data/combo/mapper/*.xml</value>
+                <value>classpath:cn/bangnongmang/data/size/mapper/*.xml</value>
+            </list>
+        </property>
+
+    </bean>
+
+
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer"
+          p:sqlSessionFactoryBeanName="sqlSessionFactory" p:basePackage="cn.bangnongmang.data"/>
+
+
+</beans>

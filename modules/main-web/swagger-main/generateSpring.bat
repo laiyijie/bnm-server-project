@@ -1,0 +1,1 @@
+java -jar swagger-codegen-cli-laiyijie.jar generate -i main.yaml -l spring -o ./spring -c ./springconfig.json

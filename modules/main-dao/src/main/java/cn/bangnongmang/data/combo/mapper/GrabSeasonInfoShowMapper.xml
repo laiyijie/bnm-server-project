@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.bangnongmang.data.combo.dao.GrabSeasonInfoShowMapper">
+	<resultMap type="cn.bangnongmang.data.combo.domain.GrabSeasonInfoShow"
+		id="BaseResultMap">
+		<id column="gsis_id" jdbcType="BIGINT" property="id" />
+		<association property="grabSeason"
+			resultMap="cn.bangnongmang.data.dao.GrabSeasonMapper.BaseResultMap"
+			columnPrefix="gs_" />
+		<collection property="seasonOrders" javaType="ArrayList"
+			resultMap="cn.bangnongmang.data.dao.SeasonOrdersMapper.BaseResultMap"
+			columnPrefix="so_" />
+	</resultMap>
+
+	<sql id="baseCol">
+		gs.id as gsis_id,
+		gs.id as gs_id,
+		gs.start_time as
+		gs_start_time,
+		gs.end_time as gs_end_time,
+		gs.toatalsize as
+		gs_toatalsize,
+		gs.ps as gs_ps,
+		gs.state as gs_state,
+		so.id as so_id,
+		so.season_id as so_season_id,
+		so.order_id as so_order_id
+	</sql>
+
+	<sql id="baseJoin">
+		`grab_season` gs left outer join `season_orders` so
+		on
+		gs.id
+		= so.season_id
+	</sql>
+
+	<select id="selectGrabSeasonInfoShowByMinEndTime" resultMap="BaseResultMap">
+		SELECT
+		<include refid="baseCol"></include>
+		FROM
+		<include refid="baseJoin"></include>
+		where
+		gs.end_time >= #{time}
+	</select>
+
+</mapper>

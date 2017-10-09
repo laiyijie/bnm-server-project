@@ -1,0 +1,1 @@
+DELETE FROM user_work_calendar WHERE order_id IN (SELECT order_id FROM order_farmer WHERE state = "FARMER_ALL_FINISHED" );

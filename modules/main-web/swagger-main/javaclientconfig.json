@@ -1,0 +1,15 @@
+{
+    "modelPackage": "cn.bangnongmang.driverapp.io.swagger.model",
+    "apiPackage": "cn.bangnongmang.driverapp.io.swagger.api",
+    "invokerPackage": "cn.bangnongmang.driverapp.io.swagger",
+    "groupId":"cn.bangnongmang",
+    "artifactId":"driverapp.swagger",
+    "artifactVersion":"0.0.30-snapshot",
+    "sourceFolder":"src/main/java",
+    "configPackage" : "cn.bangnongmang.driverapp.io.swagger.config",
+    "basePackage":"cn.bangnongmang.driverapp.io.swagger",
+    "hideGenerationTimestamp":true,
+    "serializableModel":true,
+    "useRxJava":true,
+    "library":"retrofit2"
+}

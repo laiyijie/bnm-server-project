@@ -1,0 +1,3 @@
+UPDATE  order_farmer_work_size SET id=id%10000000000000000;
+UPDATE  order_driver_work_size SET id=id%10000000000000000,order_farmer_work_size_id=order_farmer_work_size_id%10000000000000000;
+UPDATE  order_work_size_image  SET id=id%10000000000000000,order_farmer_work_size_id=order_farmer_work_size_id%10000000000000000;

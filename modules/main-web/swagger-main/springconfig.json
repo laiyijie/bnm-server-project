@@ -1,0 +1,15 @@
+{
+    "modelPackage": "cn.bangnongmang.server.swagger.model",
+    "apiPackage": "cn.bangnongmang.server.swagger.api",
+    "invokerPackage": "cn.bangnongmang.server.swagger",
+    "groupId":"cn.bangnongmang",
+    "artifactId":"swagger",
+    "artifactVersion":"1.0.0-snapshot",
+    "sourceFolder":"src/main/java",
+    "configPackage" : "cn.bangnongmang.server.swagger.config",
+    "basePackage":"cn.bangnongmang.server.swagger",
+    "interfaceOnly":true,
+    "library":"spring-mvc",
+    "hideGenerationTimestamp":true,
+    "serializableModel":true
+}

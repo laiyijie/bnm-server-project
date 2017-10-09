@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:security="http://www.springframework.org/schema/security"
+       xsi:schemaLocation="http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-4.1.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+
+    <!-- Root Context: defines shared resources visible to all other web components -->
+    <!-- jdbc data source -->
+
+
+    <context:component-scan base-package="cn.bangnongmang.admin">
+        <context:exclude-filter type="regex"
+                                expression="cn.bangnongmang.admin.controller.*"/>
+        <context:exclude-filter type="regex"
+                                expression="cn.bangnongmang.admin.notify.*"/>
+    </context:component-scan>
+    <context:component-scan base-package="cn.bangnongmang.service">
+    </context:component-scan>
+    <context:property-placeholder
+            location="file:#{systemEnvironment['BNM_CONFIG']}/config.properties"/>
+
+
+    <bean id="flyway" class="org.flywaydb.core.Flyway" init-method="migrate"
+          p:dataSource-ref="mysqlDataSource"
+          p:locations="classpath:db_bnm_main/migration"/>
+    <bean id="flyway_manager" class="org.flywaydb.core.Flyway" init-method="migrate"
+          p:dataSource-ref="adminMysqlDataSource"
+          p:locations="classpath:db_bnm_manager/migration"/>
+    <bean id="flyway_notify" class="org.flywaydb.core.Flyway" init-method="migrate"
+          p:dataSource-ref="notifyDataSource"
+          p:locations="classpath:db_bnm_notify/migration"/>
+    <bean id="mysqlDataSource" class="com.alibaba.druid.pool.DruidDataSource"
+          destroy-method="close" p:driverClassName="${jdbc.driverClass}" p:url="${jdbc.url}"
+          p:username="${jdbc.username}" p:password="${jdbc.password}"
+          p:testWhileIdle="true" p:testOnBorrow="false" p:validationQuery="SELECT 1"
+          p:timeBetweenEvictionRunsMillis="7200000" p:numTestsPerEvictionRun="50"/>
+
+    <bean id="transactionManager"
+          class="org.springframework.jdbc.datasource.DataSourceTransactionManager"
+          p:dataSource-ref="mysqlDataSource"/>
+
+    <tx:annotation-driven proxy-target-class="true"/>
+
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean"
+          p:dataSource-ref="mysqlDataSource" depends-on="flyway">
+        <property name="mapperLocations">
+            <list>
+                <value>classpath:cn/bangnongmang/data/mapper/*.xml</value>
+                <value>classpath:cn/bangnongmang/data/combo/mapper/*.xml</value>
+            </list>
+        </property>
+        <property name="plugins">
+            <array>
+                <bean class="com.github.pagehelper.PageInterceptor">
+                    <property name="properties">
+                        <!--使用下面的方式配置参数，一行配置一个 -->
+                        <value>
+                            helperDialect=mysql
+                        </value>
+                    </property>
+                </bean>
+            </array>
+        </property>
+    </bean>
+
+    <bean id="businessMapperScanner" class="org.mybatis.spring.mapper.MapperScannerConfigurer"
+          p:sqlSessionFactoryBeanName="sqlSessionFactory" p:basePackage="cn.bangnongmang.data"/>
+
+
+    <bean class="cn.bangnongmang.admin.service.impl.OfflineChargeService"
+          p:responser="lvruonan"/>
+
+    <bean class="com.fasterxml.jackson.databind.ObjectMapper"/>
+
+    <bean id="notifyDataSource" class="com.alibaba.druid.pool.DruidDataSource"
+          destroy-method="close" p:driverClassName="${jdbc.driverClass}" p:url="${notify.jdbc.url}"
+          p:username="${jdbc.username}" p:password="${jdbc.password}"
+          p:testWhileIdle="true" p:testOnBorrow="false" p:validationQuery="SELECT 1"
+          p:timeBetweenEvictionRunsMillis="7200000" p:numTestsPerEvictionRun="50"/>
+
+
+    <bean id="notifySqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean"
+          p:dataSource-ref="notifyDataSource"
+          p:mapperLocations="classpath:cn/bangnongmang/notify/server/data/mapper/*.xml">
+        <property name="plugins">
+            <array>
+                <bean class="com.github.pagehelper.PageInterceptor">
+                    <property name="properties">
+                        <!--使用下面的方式配置参数，一行配置一个 -->
+                        <value>
+                            helperDialect=mysql
+                        </value>
+                    </property>
+                </bean>
+            </array>
+        </property>
+    </bean>
+
+
+    <bean id="notifyMapperScanner" class="org.mybatis.spring.mapper.MapperScannerConfigurer"
+          p:sqlSessionFactoryBeanName="notifySqlSessionFactory"
+          p:basePackage="cn.bangnongmang.notify.server.data.mapper"/>
+
+    <bean id="targetConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory"
+          p:userName="${notify.jms.username}" p:password="${notify.jms.password}">
+        <property name="brokerURL" value="tcp://bangnongmang.cn:61616"/>
+    </bean>
+
+
+    <bean id="pooledConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory">
+        <property name="connectionFactory" ref="targetConnectionFactory"/>
+        <property name="maxConnections" value="10"/>
+    </bean>
+
+    <bean id="connectionFactory"
+          class="org.springframework.jms.connection.CachingConnectionFactory">
+        <property name="targetConnectionFactory" ref="pooledConnectionFactory"/>
+    </bean>
+
+
+    <bean id="notifyServer" class="cn.bangnongmang.notify.server.DefaultNotifyServer"
+          p:available="${notify.available}" depends-on="flyway_notify">
+    </bean>
+    <bean id="businessChannel" class="cn.bangnongmang.notify.server.channel.BusinessChannel"
+          p:livemode="${notify.livemode}">
+        <constructor-arg name="connectionFactory" ref="connectionFactory"/>
+        <constructor-arg name="dataSource" ref="notifyDataSource"/>
+        <constructor-arg name="queuePrefix" value="${notify.jms.destination}"/>
+        <constructor-arg name="notifyServer" ref="notifyServer"/>
+    </bean>
+
+    <bean id="controlChannel" class="cn.bangnongmang.notify.server.channel.ControlChannel">
+        <constructor-arg name="connectionFactory" ref="connectionFactory"/>
+        <constructor-arg name="dataSource" ref="notifyDataSource"/>
+        <constructor-arg name="queuePrefix" value="${notify.jms.destination}"/>
+        <constructor-arg name="notifyServer" ref="notifyServer"/>
+    </bean>
+
+    <bean class="cn.bangnongmang.notify.server.service.impl.NotifyWechatSender">
+        <constructor-arg name="preSharedKey" value="${wx.oacc.preSharedKey}"/>
+        <constructor-arg name="brocaster" ref="businessChannel"/>
+        <constructor-arg name="getAccessTokenUrl" value="${wx.oacc.getAccessTokenUrl}"/>
+        <constructor-arg name="getSaltStringUrl" value="${wx.oacc.getSaltStringUrl}"/>
+    </bean>
+    <bean class="cn.bangnongmang.notify.server.service.impl.TextMessageSender">
+        <constructor-arg name="brocaster" ref="businessChannel"/>
+        <constructor-arg name="userid" value="${notify.text.userid}"/>
+        <constructor-arg name="password" value="${notify.text.password}"/>
+    </bean>
+
+    <bean class="cn.bangnongmang.notify.server.service.impl.MipushMessageSender">
+        <constructor-arg name="brocaster" ref="businessChannel"/>
+        <constructor-arg name="appPackageName" value="${notify.mipush.packageName}"/>
+        <constructor-arg name="appSecretKey" value="${notify.mipush.appkey}"/>
+    </bean>
+
+    <bean id="notifyClient" class="cn.bangnongmang.notify.client.DefaultNotifyClient">
+        <constructor-arg name="connectionFactory" ref="connectionFactory"/>
+        <constructor-arg name="queuePrefix" value="${notify.jms.destination}"/>
+    </bean>
+
+    <bean id="adminMysqlDataSource" class="com.alibaba.druid.pool.DruidDataSource"
+          destroy-method="close" p:driverClassName="${jdbc.driverClass}" p:url="${admin.jdbc.url}"
+          p:username="${jdbc.username}" p:password="${jdbc.password}"
+          p:testWhileIdle="true" p:testOnBorrow="false" p:validationQuery="SELECT 1"
+          p:timeBetweenEvictionRunsMillis="7200000" p:numTestsPerEvictionRun="50"/>
+
+    <bean id="adminSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean"
+          p:dataSource-ref="adminMysqlDataSource"
+          depends-on="flyway_manager">
+        <property name="mapperLocations">
+            <list>
+                <value>classpath:cn/bangnongmang/admin/data/mapper/*.xml</value>
+                <value>classpath:cn/bangnongmang/admin/data/combo/mapper/*.xml</value>
+            </list>
+        </property>
+        <property name="plugins">
+            <array>
+                <bean class="com.github.pagehelper.PageInterceptor">
+                    <property name="properties">
+                        <!--使用下面的方式配置参数，一行配置一个 -->
+                        <value>
+                            helperDialect=mysql
+                        </value>
+                    </property>
+                </bean>
+            </array>
+        </property>
+    </bean>
+
+    <bean id="adminMapperScanner" class="org.mybatis.spring.mapper.MapperScannerConfigurer"
+          p:sqlSessionFactoryBeanName="adminSqlSessionFactory"
+          p:basePackage="cn.bangnongmang.admin.data"/>
+
+    <aop:aspectj-autoproxy proxy-target-class="true"/>
+
+    <bean
+            class="org.springframework.session.data.redis.config.annotation.web.http.RedisHttpSessionConfiguration"/>
+    <bean
+            class="org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory"
+            p:hostName="${session.redis.hostName}" p:port="${session.redis.port}"
+            p:password="${session.redis.password}" p:database="5"/>
+    <bean id="stateCollection"
+          class="cn.bangnongmang.service.middle.order.farmer.OrderFarmerStateCollection">
+    </bean>
+
+    <bean class="cn.bangnongmang.service.middle.order.farmer.OrderFarmerStateManagerFactory">
+        <constructor-arg name="collection" ref="stateCollection"/>
+    </bean>
+</beans>

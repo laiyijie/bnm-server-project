@@ -1,0 +1,7 @@
+.idea/
+modules/main-dao/data.iml
+*.iml
+modules/main-log/target/
+modules/main-test/target/
+modules/main-web/swagger-main/jsclient/
+modules/main-web/swagger-main/node_modules/

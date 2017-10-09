@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.bangnongmang.admin.data.combo.dao.RescShowMapper">
+    <resultMap id="RescAndMethodMap" type="cn.bangnongmang.admin.data.combo.domain.RescAndMethod">
+        <id column="resource" jdbcType="VARCHAR" property="resource"/>
+        <id column="method" jdbcType="VARCHAR" property="method"/>
+    </resultMap>
+    <select id="selectRescByUserName"
+            resultMap="cn.bangnongmang.admin.data.dao.RescMapper.BaseResultMap">
+  SELECT * FROM resc WHERE resc.id IN (SELECT resc_id FROM resc_role WHERE resc_role.role_id IN (SELECT id FROM user_role WHERE user_id = #{username} ) )
+    </select>
+
+    <select id="selectRescAndMethodByUsername" resultMap="RescAndMethodMap">
+SELECT resc.resource as resource,resc_role.method as method FROM resc LEFT JOIN resc_role ON
+resc.id = resc_role.resc_id WHERE resc_role.role_id IN (SELECT user_role.role_id FROM user_role
+WHERE
+user_id
+= #{username})
+    </select>
+
+</mapper>
